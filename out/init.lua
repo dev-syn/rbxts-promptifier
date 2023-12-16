@@ -97,4 +97,6 @@ end
 return {
 	Prompt = Prompt,
 	PromptType = PromptType,
+	promptChoice = promptChoice,
+	promptCompact = promptCompact,
 }

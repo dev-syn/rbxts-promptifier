@@ -136,4 +136,4 @@ class Prompt {
 
 };
 
-export { Prompt, PromptType };
+export { Prompt, PromptType, promptChoice, promptCompact };

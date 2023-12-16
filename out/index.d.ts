@@ -1,6 +1,8 @@
 /// <reference types="@rbxts/compiler-types" />
 /// <reference types="@rbxts/compiler-types" />
 import { Signal } from '@rbxts/beacon';
+import { Prompt_Choice } from './types/Prompt_Choice';
+import { Prompt_Compact } from './types/Prompt_Compact';
 import UIResolver from './UIResolver';
 declare enum PromptType {
     /** The custom mode can include any prompt UI but must have it's elements linked to the Prompt Instance. */
@@ -20,6 +22,8 @@ type PromptPayload<T extends Map<string, string>> = T & {
      */
     readonly _nominal_PromptPayload: unique symbol;
 };
+declare const promptChoice: Prompt_Choice;
+declare const promptCompact: Prompt_Compact;
 declare class Prompt {
     static ClassName: string;
     /** The ScreenGui that stores all the Prompt instances in the game. */
@@ -47,4 +51,4 @@ declare class Prompt {
     trigger(payloadMap?: Map<string, string>): Promise<void>;
     cancel(reason?: string): void;
 }
-export { Prompt, PromptType };
+export { Prompt, PromptType, promptChoice, promptCompact };
