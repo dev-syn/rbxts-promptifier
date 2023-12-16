@@ -1,0 +1,32 @@
+{
+  "name": "@rbxts/promptifier",
+  "version": "0.1.0",
+  "description": "This is a package designed to ease the use of prompt-like UI structures prompting users based on a choice or just a notification that could be acknowledged.",
+  "main": "out/init.lua",
+  "scripts": {
+    "build": "rbxtsc",
+    "watch": "rbxtsc -w",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [],
+  "author": "dev-syn",
+  "license": "MIT",
+  "types": "out/index.d.ts",
+  "files": [
+    "out",
+    "!**/*.tsbuildinfo"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@rbxts/compiler-types": "^2.2.0-types.0",
+    "@rbxts/types": "^1.0.737",
+    "roblox-ts": "^2.2.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@rbxts/beacon": "^2.1.1",
+    "@rbxts/services": "^1.5.1"
+  }
+}
