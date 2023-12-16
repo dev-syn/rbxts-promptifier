@@ -136,4 +136,4 @@ class Prompt {
 
 };
 
-export { Prompt, PromptType, promptChoice, promptCompact };
+export { Prompt, PromptType, promptChoice, promptCompact, UIResolver };

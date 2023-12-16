@@ -99,4 +99,5 @@ return {
 	PromptType = PromptType,
 	promptChoice = promptChoice,
 	promptCompact = promptCompact,
+	UIResolver = UIResolver,
 }

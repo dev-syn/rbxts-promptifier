@@ -51,4 +51,4 @@ declare class Prompt {
     trigger(payloadMap?: Map<string, string>): Promise<void>;
     cancel(reason?: string): void;
 }
-export { Prompt, PromptType, promptChoice, promptCompact };
+export { Prompt, PromptType, promptChoice, promptCompact, UIResolver };
