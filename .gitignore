@@ -1,5 +1,5 @@
-/node_modules
-/include
-/test
-/out
+node_modules/
+include/
+test/
+out/
 *.tsbuildinfo
