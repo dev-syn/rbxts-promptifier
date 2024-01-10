@@ -1,6 +1,6 @@
 import { Players as PlayersService } from '@rbxts/services';
-
 import { Signal } from '@rbxts/beacon';
+
 import { script } from './types/script';
 import { Prompt_Choice } from './types/Prompt_Choice';
 import { Prompt_Compact } from './types/Prompt_Compact';
@@ -126,7 +126,7 @@ class Prompt {
             this._UI.declineBtn.MouseButton1Click.Connect(() => {
                 this.OnFullfill.Fire(false);
             });
-        }); 
+        });
     }
 
     cancel(reason?: string) {
