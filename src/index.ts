@@ -7,7 +7,8 @@ import { Prompt_Compact } from './types/Prompt_Compact';
 import UIResolver from './UIResolver';
 import Timer, { TimerType } from './Timer';
 
-enum PromptType {
+/** The PromptTypes that can be used when creating a new Prompt object. */
+export enum PromptType {
     /** The custom mode can include any prompt UI but must have it's elements linked to the Prompt Instance. */
     Custom = "Custom",
     /** The Compact mode includes a close button at the top right with a confirm button in the bottom middle. */
@@ -16,8 +17,11 @@ enum PromptType {
     Choice = "Choice"
 }
 
-type PromptPayload = {
+/**The PromptPayload that is sent during accepted fullfillment of the prompt.  */
+export type PromptPayload = {
+    /** The Prompt that this payload belongs too. */
     prompt: Prompt;
+    /** A map of the extracted content of this prompt. { [InstanceName]: Content } */
     promptContent: Map<string,string>;
 }
 
@@ -66,12 +70,14 @@ function getLowestLayoutOrder(element: GuiObject): number {
     return lowestOrder !== undefined ? lowestOrder : 0;
 }
 
+/** Extracts content data from UI elements currently supports TextLabel & TextBox Instances.*/
 function extractDataFromElement(element: GuiObject): string | undefined {
     if (element.IsA("Frame") || element.IsA("ScrollingFrame")) return extractDataFromElement(element);
     else if (element.IsA("TextLabel") || element.IsA("TextBox")) return element.Text;
     return undefined;
 }
 
+/** Extracts content data from a ScrollingFrame or Frame Instance children. */
 function extractDataFromContent(content: ScrollingFrame | Frame,contentPayload: Map<string,string>): void {
     for (const child of content.GetChildren()) {
         if (!child.IsA("GuiObject")) continue;
@@ -80,7 +86,8 @@ function extractDataFromContent(content: ScrollingFrame | Frame,contentPayload: 
     }
 }
 
-interface PromptOptions {
+/** PromptOptions allow you to configure the prompts behavior. */
+export interface PromptOptions {
 
     /** When the Prompt is timed out it will then also be destroyed. Default(true) */
     destroyOnTimeout: boolean;
@@ -90,7 +97,10 @@ interface PromptOptions {
 class Prompt {
     static ClassName: string = "Prompt";
 
-    /** The ScreenGui that stores all the Prompt instances in the game. */
+    /**
+     * @private
+     * The ScreenGui that stores all the Prompt instances in the game.
+     */
     private static _promptsScreenUI: ScreenGui = new Instance("ScreenGui");
 
     static {
@@ -107,39 +117,92 @@ class Prompt {
         .catch((reason: unknown) => warn("Yield timed out for 'PlayerGui' in Prompts with: " + reason));
     }
 
-    /** The title of the Prompt. */
+    /** 
+     * @public
+     * The title of the Prompt.
+     */
     title: string;
-    /** The message of the Prompt. */
+    /**
+     * @public
+     * The message of the Prompt. This is optional and when toggled a TextLabel
+     * will be added to content for you with your specified message.
+     */
     message?: string;
-    /** The timeOut in seconds of the prompt if no input is given. Defaults to '0' which means no timeOut is present. */
+    /**
+     * @defaultValue `0` No timeout will be present, and the prompt will function indefinitely until Destroyed.
+     * The timeout of this Prompt, when a prompt times out it will fullfill as declined.
+     */
     timeOut: number = 0;
 
-    /** The configurable options of this Prompt. */
+    /** The configurable options of this Prompt. See {@link PromptOptions}*/
     options: PromptOptions = {
         destroyOnTimeout: true
     };
 
     // #region Events
 
-    /** This event is fired when an input or timeout is received. */
+    /**
+     * @event
+     * This event is fired when an input or timeout is received.
+     */
     OnFullfill: Signal<[accepted: boolean,payload?: PromptPayload]> = new Signal();
-    /** This event is fired when a prompt is cancelled for external reasons. */
+
+    /** 
+     * @event 
+     * This event is fired when a prompt is cancelled for external reasons.
+     */
     OnCancel: Signal<string | undefined> = new Signal();
 
     // #endregion
 
+    /**
+     * @private
+     * The type of this Prompt.
+     */
     private _type: PromptType;
+
+    /**
+     * @private
+     * The {@link Timer} of this Prompt used for time management.
+     */
     private _timer?: Timer;
-    /** Whether the Prompt is already triggered or not. @readonly */
+
+    /** 
+     * @private
+     * @readonly
+     * Whether the Prompt is already triggered or not.
+     */
     private _triggered: boolean = false;
-    /** Whether the Prompt was cancelled or not. @readonly */
+
+    /** 
+     * @private
+     * @readonly
+     * Whether the Prompt was cancelled or not.
+     */
     private _cancelled: boolean = false;
-    /** Whether the Prompt has been destroyed or not. @readonly */
+
+    /** 
+     * @private
+     * @readonly
+     * Whether the Prompt has been destroyed or not.
+     */
     private _destroyed: boolean = false;
 
+    /**
+     * @private
+     * @readonly
+     * This Prompts {@link UIResolver}.
+     */
     private _UI: UIResolver;
     private _UIConnections: RBXScriptConnection[] = [];
 
+    /**
+     * 
+     * @param promptType - {@link PromptType.Custom}
+     * @param title - The title of this Prompt.
+     * @param message - The message of this Prompt or undefined for no message.
+     * @param UI - The UIResolver that is provided to link custom instances to the intended structure.
+     */
     constructor(promptType: PromptType.Custom,title: string,message: string | undefined,UI: UIResolver);
     constructor(promptType: PromptType.Compact,title: string,message: string | undefined);
     constructor(promptType: PromptType.Choice,title: string,message: string | undefined);
@@ -277,6 +340,10 @@ class Prompt {
         }
     }
 
+    /**
+     * @public
+     * @param reason - The reason for cancelling the prompt.
+     */
     Cancel(reason?: string) {
         this._triggered = false;
         this._cancelled = true;
@@ -284,6 +351,10 @@ class Prompt {
         this.OnCancel.Fire(reason);
     }
 
+    /**
+     * @public
+     * This method releases used resources and Destroys this Prompt.
+     */
     Destroy() {
         this.cleanConnections();
         if (this._timer) {
@@ -293,7 +364,10 @@ class Prompt {
         this._destroyed = true;
     }
 
-    /** Cleans the UI Connections that belong to this Prompt. */
+    /**
+     * @private
+     * Cleans the UI Connections that belong to this Prompt.
+     */
     private cleanConnections() {
         this._UIConnections.forEach(conn => conn.Disconnect());
         this._UIConnections = [];
@@ -301,4 +375,4 @@ class Prompt {
 
 };
 
-export { Prompt, PromptType, promptChoice, promptCompact, UIResolver, PromptPayload };
+export { Prompt, UIResolver,  Prompt_Choice, Prompt_Compact, promptChoice, promptCompact };
