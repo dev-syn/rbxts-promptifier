@@ -62,10 +62,9 @@ declare class Timer {
      */
     private _activeTween;
     /**
-     *
+     * @private
      * @param _type - The type of Timer to create
      * @param start - What time the Timer should start at
-     * @returns default - The Timer object
      */
     constructor(_type: TimerType, start?: number);
     /**
