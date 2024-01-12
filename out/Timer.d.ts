@@ -37,6 +37,7 @@ declare class Timer {
     readonly ClassName: "Timer";
     /**
      * @internal
+     * @readonly
      * The {@link TimerType} of this Timer.
      */
     readonly _type: TimerType;
