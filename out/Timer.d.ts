@@ -26,6 +26,13 @@ declare enum TimerPosition {
     /** The [Bottom] position used for a bar placed on the bottom under the prompt. */
     Bottom = 5
 }
+/**
+ * **Timer**
+ *
+ *
+ * The Timer class is designed to create a timer in seconds that
+ * can be displayed on a Bar or with a digital TextLabel.
+ */
 declare class Timer {
     readonly ClassName: "Timer";
     /**

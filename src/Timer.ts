@@ -30,6 +30,13 @@ enum TimerPosition {
     Bottom,
 }
 
+/**
+ * **Timer**
+ * 
+ * 
+ * The Timer class is designed to create a timer in seconds that
+ * can be displayed on a Bar or with a digital TextLabel.
+ */
 class Timer {
     readonly ClassName: "Timer" = "Timer";
     /**

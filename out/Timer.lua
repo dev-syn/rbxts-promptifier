@@ -43,6 +43,15 @@ do
 	TimerPosition.Bottom = 5
 	_inverse[5] = "Bottom"
 end
+--[[
+	*
+	 * **Timer**
+	 * 
+	 * 
+	 * The Timer class is designed to create a timer in seconds that
+	 * can be displayed on a Bar or with a digital TextLabel.
+	 
+]]
 local Timer
 do
 	Timer = setmetatable({}, {
