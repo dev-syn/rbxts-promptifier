@@ -1,5 +1,4 @@
 /// <reference types="@rbxts/compiler-types" />
-/// <reference types="@rbxts/compiler-types" />
 import { Signal } from '@rbxts/beacon';
 import { Prompt_Choice } from './types/Prompt_Choice';
 import { Prompt_Compact } from './types/Prompt_Compact';
@@ -12,18 +11,16 @@ declare enum PromptType {
     /** The Choice mode includes a title with a message box and a accept or decline button next to each other at the bottom. */
     Choice = "Choice"
 }
-type PromptPayload<T extends Map<string, string>> = T & {
-    /**
-     * **DO NOT USE!**
-     *
-     * This field exist to force TypeScript to recognize this as a nominal type
-     * @hidden
-     * @deprecated
-     */
-    readonly _nominal_PromptPayload: unique symbol;
+type PromptPayload = {
+    prompt: Prompt;
+    promptContent: Map<string, string>;
 };
 declare const promptChoice: Prompt_Choice;
 declare const promptCompact: Prompt_Compact;
+interface PromptOptions {
+    /** When the Prompt is timed out it will then also be destroyed. Default(true) */
+    destroyOnTimeout: boolean;
+}
 declare class Prompt {
     static ClassName: string;
     /** The ScreenGui that stores all the Prompt instances in the game. */
@@ -31,24 +28,36 @@ declare class Prompt {
     /** The title of the Prompt. */
     title: string;
     /** The message of the Prompt. */
-    message: string;
-    /** The timeOut of the prompt if no input is given. */
+    message?: string;
+    /** The timeOut in seconds of the prompt if no input is given. Defaults to '0' which means no timeOut is present. */
     timeOut: number;
+    /** The configurable options of this Prompt. */
+    options: PromptOptions;
     /** This event is fired when an input or timeout is received. */
-    OnFullfill: Signal<[accepted: boolean, payload?: PromptPayload<Map<string, string>>]>;
+    OnFullfill: Signal<[accepted: boolean, payload?: PromptPayload]>;
     /** This event is fired when a prompt is cancelled for external reasons. */
     OnCancel: Signal<string | undefined>;
+    private _type;
+    private _timer?;
+    /** Whether the Prompt is already triggered or not. @readonly */
+    private _triggered;
     /** Whether the Prompt was cancelled or not. @readonly */
     private _cancelled;
+    /** Whether the Prompt has been destroyed or not. @readonly */
+    private _destroyed;
     private _UI;
-    constructor(promptType: PromptType.Custom, title: string, message: string, UI: UIResolver);
-    constructor(promptType: PromptType.Compact, title: string, message: string);
-    constructor(promptType: PromptType.Choice, title: string, message: string);
+    private _UIConnections;
+    constructor(promptType: PromptType.Custom, title: string, message: string | undefined, UI: UIResolver);
+    constructor(promptType: PromptType.Compact, title: string, message: string | undefined);
+    constructor(promptType: PromptType.Choice, title: string, message: string | undefined);
     /**
      * Triggers the prompt showing the prompt on top of the players screen. If a time out is specified then a timer will start if no input is given then the prompt will auto-fullfill with declined.
      * {@param payloadMap} The map that links instance names to a key in the payload data.
      */
-    trigger(payloadMap?: Map<string, string>): Promise<void>;
-    cancel(reason?: string): void;
+    Trigger(): void;
+    Cancel(reason?: string): void;
+    Destroy(): void;
+    /** Cleans the UI Connections that belong to this Prompt. */
+    private cleanConnections;
 }
 export { Prompt, PromptType, promptChoice, promptCompact, UIResolver };

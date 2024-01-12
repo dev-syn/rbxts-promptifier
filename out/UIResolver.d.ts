@@ -13,5 +13,7 @@ declare class UIResolver {
     setDecline(btn: TextButton | ImageButton): this;
     /** Throws if any of the elements are missing or invalid types. */
     validate(): void;
+    /** Returns true if the structure of the prompt elements is valid otherwise false. */
+    validateStructure(): boolean;
 }
 export = UIResolver;

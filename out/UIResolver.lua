@@ -62,5 +62,10 @@ do
 		local _arg0_4 = isOfInstance(declineBtn, "TextButton") or isOfInstance(declineBtn, "ImageButton")
 		assert(_arg0_4, "DeclineBtn must be a TextButton or a ImageButton Instance.")
 	end
+	function UIResolver:validateStructure()
+		-- Check that each prompt element is within the 'BG' element type.
+		local bg = self.BG
+		return self.title.Parent == bg and (self.content.Parent == bg and (self.acceptBtn.Parent == bg and self.declineBtn.Parent == bg))
+	end
 end
 return UIResolver
