@@ -3,7 +3,8 @@ import { Signal } from '@rbxts/beacon';
 import { Prompt_Choice } from './types/Prompt_Choice';
 import { Prompt_Compact } from './types/Prompt_Compact';
 import UIResolver from './UIResolver';
-declare enum PromptType {
+/** The PromptTypes that can be used when creating a new Prompt object. */
+export declare enum PromptType {
     /** The custom mode can include any prompt UI but must have it's elements linked to the Prompt Instance. */
     Custom = "Custom",
     /** The Compact mode includes a close button at the top right with a confirm button in the bottom middle. */
@@ -11,42 +12,97 @@ declare enum PromptType {
     /** The Choice mode includes a title with a message box and a accept or decline button next to each other at the bottom. */
     Choice = "Choice"
 }
-type PromptPayload = {
+/**The PromptPayload that is sent during accepted fullfillment of the prompt.  */
+export type PromptPayload = {
+    /** The Prompt that this payload belongs too. */
     prompt: Prompt;
+    /** A map of the extracted content of this prompt. { [InstanceName]: Content } */
     promptContent: Map<string, string>;
 };
 declare const promptChoice: Prompt_Choice;
 declare const promptCompact: Prompt_Compact;
-interface PromptOptions {
+/** PromptOptions allow you to configure the prompts behavior. */
+export interface PromptOptions {
     /** When the Prompt is timed out it will then also be destroyed. Default(true) */
     destroyOnTimeout: boolean;
 }
 declare class Prompt {
     static ClassName: string;
-    /** The ScreenGui that stores all the Prompt instances in the game. */
+    /**
+     * @private
+     * The ScreenGui that stores all the Prompt instances in the game.
+     */
     private static _promptsScreenUI;
-    /** The title of the Prompt. */
+    /**
+     * @public
+     * The title of the Prompt.
+     */
     title: string;
-    /** The message of the Prompt. */
+    /**
+     * @public
+     * The message of the Prompt. This is optional and when toggled a TextLabel
+     * will be added to content for you with your specified message.
+     */
     message?: string;
-    /** The timeOut in seconds of the prompt if no input is given. Defaults to '0' which means no timeOut is present. */
+    /**
+     * @defaultValue `0` No timeout will be present, and the prompt will function indefinitely until Destroyed.
+     * The timeout of this Prompt, when a prompt times out it will fullfill as declined.
+     */
     timeOut: number;
-    /** The configurable options of this Prompt. */
+    /** The configurable options of this Prompt. See {@link PromptOptions}*/
     options: PromptOptions;
-    /** This event is fired when an input or timeout is received. */
+    /**
+     * @event
+     * This event is fired when an input or timeout is received.
+     */
     OnFullfill: Signal<[accepted: boolean, payload?: PromptPayload]>;
-    /** This event is fired when a prompt is cancelled for external reasons. */
+    /**
+     * @event
+     * This event is fired when a prompt is cancelled for external reasons.
+     */
     OnCancel: Signal<string | undefined>;
+    /**
+     * @private
+     * The type of this Prompt.
+     */
     private _type;
+    /**
+     * @private
+     * The {@link Timer} of this Prompt used for time management.
+     */
     private _timer?;
-    /** Whether the Prompt is already triggered or not. @readonly */
+    /**
+     * @private
+     * @readonly
+     * Whether the Prompt is already triggered or not.
+     */
     private _triggered;
-    /** Whether the Prompt was cancelled or not. @readonly */
+    /**
+     * @private
+     * @readonly
+     * Whether the Prompt was cancelled or not.
+     */
     private _cancelled;
-    /** Whether the Prompt has been destroyed or not. @readonly */
+    /**
+     * @private
+     * @readonly
+     * Whether the Prompt has been destroyed or not.
+     */
     private _destroyed;
+    /**
+     * @private
+     * @readonly
+     * This Prompts {@link UIResolver}.
+     */
     private _UI;
     private _UIConnections;
+    /**
+     *
+     * @param promptType - {@link PromptType.Custom}
+     * @param title - The title of this Prompt.
+     * @param message - The message of this Prompt or undefined for no message.
+     * @param UI - The UIResolver that is provided to link custom instances to the intended structure.
+     */
     constructor(promptType: PromptType.Custom, title: string, message: string | undefined, UI: UIResolver);
     constructor(promptType: PromptType.Compact, title: string, message: string | undefined);
     constructor(promptType: PromptType.Choice, title: string, message: string | undefined);
@@ -56,9 +112,20 @@ declare class Prompt {
      * and the prompt will auto-fullfill with a declined status.
      */
     Trigger(): void;
+    /**
+     * @public
+     * @param reason - The reason for cancelling the prompt.
+     */
     Cancel(reason?: string): void;
+    /**
+     * @public
+     * This method releases used resources and Destroys this Prompt.
+     */
     Destroy(): void;
-    /** Cleans the UI Connections that belong to this Prompt. */
+    /**
+     * @private
+     * Cleans the UI Connections that belong to this Prompt.
+     */
     private cleanConnections;
 }
-export { Prompt, PromptType, promptChoice, promptCompact, UIResolver, PromptPayload };
+export { Prompt, UIResolver, Prompt_Choice, Prompt_Compact, promptChoice, promptCompact };

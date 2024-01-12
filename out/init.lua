@@ -6,6 +6,7 @@ local UIResolver = TS.import(script, script, "UIResolver")
 local _Timer = TS.import(script, script, "Timer")
 local Timer = _Timer.default
 local TimerType = _Timer.TimerType
+--* The PromptTypes that can be used when creating a new Prompt object. 
 local PromptType
 do
 	local _inverse = {}
@@ -19,6 +20,7 @@ do
 	PromptType.Choice = "Choice"
 	_inverse.Choice = "Choice"
 end
+--*The PromptPayload that is sent during accepted fullfillment of the prompt.  
 local _script = script
 local promptChoice = _script.PromptInstances.Prompt_Choice
 local promptCompact = _script.PromptInstances.Prompt_Compact
@@ -63,6 +65,7 @@ local function getLowestLayoutOrder(element)
 	end
 	return if lowestOrder ~= nil then lowestOrder else 0
 end
+--* Extracts content data from UI elements currently supports TextLabel & TextBox Instances.
 local function extractDataFromElement(element)
 	if element:IsA("Frame") or element:IsA("ScrollingFrame") then
 		return extractDataFromElement(element)
@@ -71,6 +74,7 @@ local function extractDataFromElement(element)
 	end
 	return nil
 end
+--* Extracts content data from a ScrollingFrame or Frame Instance children. 
 local function extractDataFromContent(content, contentPayload)
 	for _, child in content:GetChildren() do
 		if not child:IsA("GuiObject") then
@@ -84,6 +88,7 @@ local function extractDataFromContent(content, contentPayload)
 		end
 	end
 end
+--* PromptOptions allow you to configure the prompts behavior. 
 local Prompt
 do
 	Prompt = setmetatable({}, {
@@ -253,9 +258,9 @@ do
 	end
 end
 return {
-	Prompt = Prompt,
 	PromptType = PromptType,
+	Prompt = Prompt,
+	UIResolver = UIResolver,
 	promptChoice = promptChoice,
 	promptCompact = promptCompact,
-	UIResolver = UIResolver,
 }
