@@ -51,8 +51,9 @@ declare class Prompt {
     constructor(promptType: PromptType.Compact, title: string, message: string | undefined);
     constructor(promptType: PromptType.Choice, title: string, message: string | undefined);
     /**
-     * Triggers the prompt showing the prompt on top of the players screen. If a time out is specified then a timer will start if no input is given then the prompt will auto-fullfill with declined.
-     * {@param payloadMap} The map that links instance names to a key in the payload data.
+     * Triggers the prompt showing the prompt on top of the players screen.
+     * If a time out is specified, a timer will start if no input is given
+     * and the prompt will auto-fullfill with a declined status.
      */
     Trigger(): void;
     Cancel(reason?: string): void;
@@ -60,4 +61,4 @@ declare class Prompt {
     /** Cleans the UI Connections that belong to this Prompt. */
     private cleanConnections;
 }
-export { Prompt, PromptType, promptChoice, promptCompact, UIResolver };
+export { Prompt, PromptType, promptChoice, promptCompact, UIResolver, PromptPayload };
