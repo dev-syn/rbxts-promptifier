@@ -2,7 +2,7 @@
 	<Meta name="ExplicitAutoJoints">true</Meta>
 	<External>null</External>
 	<External>nil</External>
-	<Item class="Frame" referent="RBXE2C61E382CEC47D48046A6D35C479BEA">
+	<Item class="Frame" referent="8">
 		<Properties>
 			<bool name="Active">false</bool>
 			<Vector2 name="AnchorPoint">
@@ -31,7 +31,7 @@
 			<bool name="Draggable">false</bool>
 			<bool name="Interactable">true</bool>
 			<int name="LayoutOrder">0</int>
-			<string name="Name">Prompt-Compact</string>
+			<string name="Name">Prompt_Compact</string>
 			<Ref name="NextSelectionDown">null</Ref>
 			<Ref name="NextSelectionLeft">null</Ref>
 			<Ref name="NextSelectionRight">null</Ref>
@@ -65,7 +65,7 @@
 			<bool name="Visible">false</bool>
 			<int name="ZIndex">1</int>
 		</Properties>
-		<Item class="TextLabel" referent="RBXAE1D3981CFF5467CADAF0C695C6A94FC">
+		<Item class="TextLabel" referent="9">
 			<Properties>
 				<bool name="Active">false</bool>
 				<Vector2 name="AnchorPoint">
@@ -158,7 +158,7 @@
 				<int name="ZIndex">1</int>
 			</Properties>
 		</Item>
-		<Item class="TextButton" referent="RBX125D6203EE2D4C97862F17CA4649B660">
+		<Item class="TextButton" referent="10">
 			<Properties>
 				<bool name="Active">true</bool>
 				<Vector2 name="AnchorPoint">
@@ -255,7 +255,7 @@
 				<int name="ZIndex">1</int>
 			</Properties>
 		</Item>
-		<Item class="ImageButton" referent="RBXB2F0F42F8CD74BA1B3E768C4CE1378B4">
+		<Item class="ImageButton" referent="11">
 			<Properties>
 				<bool name="Active">true</bool>
 				<Vector2 name="AnchorPoint">
@@ -358,7 +358,7 @@
 				<int name="ZIndex">1</int>
 			</Properties>
 		</Item>
-		<Item class="ScrollingFrame" referent="RBX4AC1A3DF2A0840AF8594CEBB56710FA6">
+		<Item class="ScrollingFrame" referent="12">
 			<Properties>
 				<bool name="Active">true</bool>
 				<Vector2 name="AnchorPoint">
