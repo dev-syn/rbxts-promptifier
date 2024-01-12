@@ -1,13 +1,15 @@
 import { Players as PlayersService } from '@rbxts/services';
 import { Signal } from '@rbxts/beacon';
 
-import { script } from './types/script';
 import { Prompt_Choice } from './types/Prompt_Choice';
 import { Prompt_Compact } from './types/Prompt_Compact';
 import UIResolver from './UIResolver';
 import Timer, { TimerType } from './Timer';
 
-/** The PromptTypes that can be used when creating a new Prompt object. */
+/**
+ * @category Prompt
+ * The PromptTypes that can be used when creating a new Prompt object.
+ */
 export enum PromptType {
     /** The custom mode can include any prompt UI but must have it's elements linked to the Prompt Instance. */
     Custom = "Custom",
@@ -17,7 +19,29 @@ export enum PromptType {
     Choice = "Choice"
 }
 
-/**The PromptPayload that is sent during accepted fullfillment of the prompt.  */
+/**
+ * @category Prompt
+ * The PromptPayload that is sent during accepted fullfillment of the prompt.
+ * @example
+ * ```
+ * prompt.OnFullfill.Connect((accepted: boolean,payload?: PromptPayload) => {
+ *     if (accepted && payload) {
+ *         print(payload.promptContent);
+ *     }
+ * });
+ * ```
+ * 
+ * Assuming we had a Prompt with a ScrollingFrame as the Content
+ * and it contains 1 TextLabel named 'Money' and 1 TextBox named 'Nickname'
+ * 
+ * Your output would look like this
+ * ```
+ * {
+ *     ["Money"] = "350",
+ *     ["Nickname"] = "Jen"
+ * }
+ * ```
+ */
 export type PromptPayload = {
     /** The Prompt that this payload belongs too. */
     prompt: Prompt;
@@ -25,10 +49,8 @@ export type PromptPayload = {
     promptContent: Map<string,string>;
 }
 
-const _script: script = script as script;
-
-const promptChoice: Prompt_Choice = _script.PromptInstances.Prompt_Choice;
-const promptCompact: Prompt_Compact = _script.PromptInstances.Prompt_Compact;
+const promptChoice: Prompt_Choice = script.FindFirstChild("PromptInstances")!.FindFirstChild("Prompt_Choice") as Prompt_Choice;
+const promptCompact: Prompt_Compact = script.FindFirstChild("PromptInstances")!.FindFirstChild("Prompt_Compact") as Prompt_Compact;
 
 const player: Player = PlayersService.LocalPlayer;
 
@@ -86,7 +108,10 @@ function extractDataFromContent(content: ScrollingFrame | Frame,contentPayload: 
     }
 }
 
-/** PromptOptions allow you to configure the prompts behavior. */
+/**
+ * @category Prompt
+ * PromptOptions allow you to configure the prompts behavior.
+ */
 export interface PromptOptions {
 
     /** When the Prompt is timed out it will then also be destroyed. Default(true) */
@@ -94,6 +119,10 @@ export interface PromptOptions {
 
 }
 
+/**
+ * @category Prompt
+ * The main class used to create & use Prompts.
+ */
 class Prompt {
     static ClassName: string = "Prompt";
 
@@ -155,6 +184,8 @@ class Prompt {
 
     // #endregion
 
+    // #region private_members
+
     /**
      * @private
      * The type of this Prompt.
@@ -196,6 +227,8 @@ class Prompt {
     private _UI: UIResolver;
     private _UIConnections: RBXScriptConnection[] = [];
 
+    // #endregions
+
     /**
      * 
      * @param promptType - {@link PromptType.Custom}
@@ -211,8 +244,8 @@ class Prompt {
             this.title = title;
             this.message = message;
 
-            // Validate the UI
             if (!UI) error("UIResolver must be given when using custom prompt type.");
+            // Validate the UI
             UI.validate();
 
             this._UI = UI;
@@ -375,4 +408,4 @@ class Prompt {
 
 };
 
-export { Prompt, UIResolver,  Prompt_Choice, Prompt_Compact, promptChoice, promptCompact };
+export { Prompt, UIResolver, Prompt_Choice, Prompt_Compact, promptChoice, promptCompact };
