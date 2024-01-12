@@ -49,6 +49,18 @@ class UIResolver {
         const declineBtn = this.declineBtn;
         assert(isOfInstance(declineBtn,"TextButton") || isOfInstance(declineBtn,"ImageButton"),"DeclineBtn must be a TextButton or a ImageButton Instance.");
     }
+
+    /** Returns true if the structure of the prompt elements is valid otherwise false. */
+    validateStructure(): boolean {
+        // Check that each prompt element is within the 'BG' element type.
+        const bg: Frame = this.BG;
+        return (
+            this.title.Parent === bg &&
+            this.content.Parent === bg &&
+            this.acceptBtn.Parent === bg &&
+            this.declineBtn.Parent === bg
+        );
+    }
 };
 
 export = UIResolver;
