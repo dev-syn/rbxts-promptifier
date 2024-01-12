@@ -168,7 +168,7 @@ class Prompt {
         destroyOnTimeout: true
     };
 
-    // #region Events
+// #region Events
 
     /**
      * @event
@@ -182,9 +182,9 @@ class Prompt {
      */
     OnCancel: Signal<string | undefined> = new Signal();
 
-    // #endregion
+// #endregion
 
-    // #region private_members
+// #region private_members
 
     /**
      * @private
@@ -227,7 +227,7 @@ class Prompt {
     private _UI: UIResolver;
     private _UIConnections: RBXScriptConnection[] = [];
 
-    // #endregions
+// #endregion
 
     /**
      * 
