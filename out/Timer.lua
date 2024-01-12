@@ -18,6 +18,12 @@ do
 	TimerType.Digit = 1
 	_inverse[1] = "Digit"
 end
+--[[
+	*
+	 * @enum
+	 * The preset Position's of the Timer within the Prompt.
+	 
+]]
 local TimerPosition
 do
 	local _inverse = {}
