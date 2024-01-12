@@ -208,8 +208,9 @@ class Prompt {
     }
 
     /**
-     * Triggers the prompt showing the prompt on top of the players screen. If a time out is specified then a timer will start if no input is given then the prompt will auto-fullfill with declined.
-     * {@param payloadMap} The map that links instance names to a key in the payload data.
+     * Triggers the prompt showing the prompt on top of the players screen.
+     * If a time out is specified, a timer will start if no input is given
+     * and the prompt will auto-fullfill with a declined status.
      */
     Trigger() {
         // Only trigger if not already triggered
@@ -300,4 +301,4 @@ class Prompt {
 
 };
 
-export { Prompt, PromptType, promptChoice, promptCompact, UIResolver };
+export { Prompt, PromptType, promptChoice, promptCompact, UIResolver, PromptPayload };
