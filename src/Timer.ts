@@ -73,6 +73,7 @@ class Timer {
      * 
      * @param _type - The type of Timer to create
      * @param start - What time the Timer should start at
+     * @returns default - The Timer object
      */
     constructor(_type: TimerType,start?: number) {
         this._type = _type;
@@ -278,4 +279,4 @@ class Timer {
 
 };
 
-export { Timer as default, TimerType, TimerPosition };
+export { Timer, TimerType, TimerPosition };

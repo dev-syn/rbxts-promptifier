@@ -4,7 +4,7 @@ import { Signal } from '@rbxts/beacon';
 import { Prompt_Choice } from './types/Prompt_Choice';
 import { Prompt_Compact } from './types/Prompt_Compact';
 import UIResolver from './UIResolver';
-import Timer, { TimerType } from './Timer';
+import { Timer, TimerType } from './Timer';
 
 /**
  * @category Prompt

@@ -232,7 +232,7 @@ do
 	end
 end
 return {
-	default = Timer,
+	Timer = Timer,
 	TimerType = TimerType,
 	TimerPosition = TimerPosition,
 }

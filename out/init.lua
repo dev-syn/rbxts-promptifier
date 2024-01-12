@@ -4,7 +4,7 @@ local PlayersService = TS.import(script, TS.getModule(script, "@rbxts", "service
 local Signal = TS.import(script, TS.getModule(script, "@rbxts", "beacon").out).Signal
 local UIResolver = TS.import(script, script, "UIResolver")
 local _Timer = TS.import(script, script, "Timer")
-local Timer = _Timer.default
+local Timer = _Timer.Timer
 local TimerType = _Timer.TimerType
 --[[
 	*

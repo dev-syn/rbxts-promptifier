@@ -64,6 +64,7 @@ declare class Timer {
      *
      * @param _type - The type of Timer to create
      * @param start - What time the Timer should start at
+     * @returns default - The Timer object
      */
     constructor(_type: TimerType, start?: number);
     /**
@@ -98,4 +99,4 @@ declare class Timer {
      */
     private updateUI;
 }
-export { Timer as default, TimerType, TimerPosition };
+export { Timer, TimerType, TimerPosition };
