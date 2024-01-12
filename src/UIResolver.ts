@@ -2,7 +2,12 @@ function isOfInstance(obj: any,instType: keyof Instances): boolean {
     return obj && typeOf(obj) === 'Instance' && (obj as Instance).IsA(instType);
 }
 
-/** A utility class that allows you to patch any prompt designs into the Prompt class essentially mapping your custom elements into the expected structure. */
+/**
+ * **UIResolver**
+ * 
+ * A utility class that allows you to patch any prompt designs into the Prompt class essentially
+ * mapping your custom elements into the expected structure.
+ */
 class UIResolver {
     BG!: Frame;
     title!: TextLabel;
@@ -11,32 +16,59 @@ class UIResolver {
     acceptBtn!: TextButton | ImageButton;
     declineBtn!: TextButton | ImageButton;
 
+    /**
+     * @param bg - The background Frame of the Prompt
+     * @returns - UIResolver for chaining
+     */
     setBG(bg: Frame): this {
         this.BG = bg;
         return this;
     }
 
+    /**
+     * 
+     * @param tl - The title TextLabel of the Prompt
+     * @returns - UIResolver for chaining
+     */
     setTitle(tl: TextLabel): this {
         this.title = tl;
         return this;
     }
 
+    /**
+     * 
+     * @param frame - A ScrollingFrame or Frame that will contain the Prompt content
+     * @returns - UIResolver for chaining
+     */
     setContent(frame: ScrollingFrame | Frame): this {
         this.content = frame;
         return this;
     }
 
+    /**
+     * 
+     * @param btn - The TextButton or ImageButton that will represent accepting the Prompt
+     * @returns - UIResolver for chaining
+     */
     setAccept(btn: TextButton | ImageButton): this {
         this.acceptBtn = btn;
         return this;
     }
 
+    /**
+     * 
+     * @param btn - The TextButton or ImageButton that will represent declining the Prompt
+     * @returns - UIResolver for chaining
+     */
     setDecline(btn: TextButton | ImageButton): this {
         this.declineBtn = btn;
         return this;
     }
 
-    /** Throws if any of the elements are missing or invalid types. */
+    /** 
+     * Validates the ui links to ensure they fill the requirements.
+     * Throws if any of the elements are missing or invalid types.
+     */
     validate() {
         const bg = this.BG;
         assert(isOfInstance(bg,"Frame"),"BG must be a Frame Instance.")
@@ -50,7 +82,10 @@ class UIResolver {
         assert(isOfInstance(declineBtn,"TextButton") || isOfInstance(declineBtn,"ImageButton"),"DeclineBtn must be a TextButton or a ImageButton Instance.");
     }
 
-    /** Returns true if the structure of the prompt elements is valid otherwise false. */
+    /**
+     * Validates the structure of the UIResolver ensuring the elements are within their background.
+     * @returns - `true` if the structure is valid, otherwise `false`
+     */
     validateStructure(): boolean {
         // Check that each prompt element is within the 'BG' element type.
         const bg: Frame = this.BG;
