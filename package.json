@@ -23,6 +23,8 @@
     "@rbxts/compiler-types": "^2.2.0-types.0",
     "@rbxts/types": "^1.0.737",
     "roblox-ts": "^2.2.0",
+    "typedoc": "^0.25.7",
+    "typedoc-material-theme": "^1.0.2",
     "typescript": "^5.3.3"
   },
   "dependencies": {
