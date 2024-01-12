@@ -10,7 +10,14 @@ local function isOfInstance(obj, instType)
 	end
 	return _condition
 end
---* A utility class that allows you to patch any prompt designs into the Prompt class essentially mapping your custom elements into the expected structure. 
+--[[
+	*
+	 * **UIResolver**
+	 * 
+	 * A utility class that allows you to patch any prompt designs into the Prompt class essentially
+	 * mapping your custom elements into the expected structure.
+	 
+]]
 local UIResolver
 do
 	UIResolver = setmetatable({}, {

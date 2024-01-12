@@ -6,7 +6,12 @@ local UIResolver = TS.import(script, script, "UIResolver")
 local _Timer = TS.import(script, script, "Timer")
 local Timer = _Timer.default
 local TimerType = _Timer.TimerType
---* The PromptTypes that can be used when creating a new Prompt object. 
+--[[
+	*
+	 * @category Prompt
+	 * The PromptTypes that can be used when creating a new Prompt object.
+	 
+]]
 local PromptType
 do
 	local _inverse = {}
@@ -20,10 +25,33 @@ do
 	PromptType.Choice = "Choice"
 	_inverse.Choice = "Choice"
 end
---*The PromptPayload that is sent during accepted fullfillment of the prompt.  
-local _script = script
-local promptChoice = _script.PromptInstances.Prompt_Choice
-local promptCompact = _script.PromptInstances.Prompt_Compact
+--[[
+	*
+	 * @category Prompt
+	 * The PromptPayload that is sent during accepted fullfillment of the prompt.
+	 * @example
+	 * ```
+	 * prompt.OnFullfill.Connect((accepted: boolean,payload?: PromptPayload) => {
+	 *     if (accepted && payload) {
+	 *         print(payload.promptContent);
+	 *     }
+	 * });
+	 * ```
+	 * 
+	 * Assuming we had a Prompt with a ScrollingFrame as the Content
+	 * and it contains 1 TextLabel named 'Money' and 1 TextBox named 'Nickname'
+	 * 
+	 * Your output would look like this
+	 * ```
+	 * {
+	 *     ["Money"] = "350",
+	 *     ["Nickname"] = "Jen"
+	 * }
+	 * ```
+	 
+]]
+local promptChoice = script:FindFirstChild("PromptInstances"):FindFirstChild("Prompt_Choice")
+local promptCompact = script:FindFirstChild("PromptInstances"):FindFirstChild("Prompt_Compact")
 local player = PlayersService.LocalPlayer
 --* Creates the default UIListLayout inserted into Prompt._UI.content if it's a Scrolling Frame. 
 local function createDefaultUIListLayout()
@@ -88,7 +116,18 @@ local function extractDataFromContent(content, contentPayload)
 		end
 	end
 end
---* PromptOptions allow you to configure the prompts behavior. 
+--[[
+	*
+	 * @category Prompt
+	 * PromptOptions allow you to configure the prompts behavior.
+	 
+]]
+--[[
+	*
+	 * @category Prompt
+	 * The main class used to create & use Prompts.
+	 
+]]
 local Prompt
 do
 	Prompt = setmetatable({}, {
@@ -115,10 +154,10 @@ do
 		if promptType == PromptType.Custom then
 			self.title = title
 			self.message = message
-			-- Validate the UI
 			if not UI then
 				error("UIResolver must be given when using custom prompt type.")
 			end
+			-- Validate the UI
 			UI:validate()
 			self._UI = UI
 		elseif promptType == PromptType.Compact then

@@ -1,6 +1,12 @@
 -- Compiled with roblox-ts v2.2.0
 local TS = _G[script]
 local TweenService = TS.import(script, TS.getModule(script, "@rbxts", "services")).TweenService
+--[[
+	*
+	 * @enum
+	 * This enum represents the types of Time display that this Timer will use.
+	 
+]]
 local TimerType
 do
 	local _inverse = {}

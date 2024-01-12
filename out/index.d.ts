@@ -3,7 +3,10 @@ import { Signal } from '@rbxts/beacon';
 import { Prompt_Choice } from './types/Prompt_Choice';
 import { Prompt_Compact } from './types/Prompt_Compact';
 import UIResolver from './UIResolver';
-/** The PromptTypes that can be used when creating a new Prompt object. */
+/**
+ * @category Prompt
+ * The PromptTypes that can be used when creating a new Prompt object.
+ */
 export declare enum PromptType {
     /** The custom mode can include any prompt UI but must have it's elements linked to the Prompt Instance. */
     Custom = "Custom",
@@ -12,7 +15,29 @@ export declare enum PromptType {
     /** The Choice mode includes a title with a message box and a accept or decline button next to each other at the bottom. */
     Choice = "Choice"
 }
-/**The PromptPayload that is sent during accepted fullfillment of the prompt.  */
+/**
+ * @category Prompt
+ * The PromptPayload that is sent during accepted fullfillment of the prompt.
+ * @example
+ * ```
+ * prompt.OnFullfill.Connect((accepted: boolean,payload?: PromptPayload) => {
+ *     if (accepted && payload) {
+ *         print(payload.promptContent);
+ *     }
+ * });
+ * ```
+ *
+ * Assuming we had a Prompt with a ScrollingFrame as the Content
+ * and it contains 1 TextLabel named 'Money' and 1 TextBox named 'Nickname'
+ *
+ * Your output would look like this
+ * ```
+ * {
+ *     ["Money"] = "350",
+ *     ["Nickname"] = "Jen"
+ * }
+ * ```
+ */
 export type PromptPayload = {
     /** The Prompt that this payload belongs too. */
     prompt: Prompt;
@@ -21,11 +46,18 @@ export type PromptPayload = {
 };
 declare const promptChoice: Prompt_Choice;
 declare const promptCompact: Prompt_Compact;
-/** PromptOptions allow you to configure the prompts behavior. */
+/**
+ * @category Prompt
+ * PromptOptions allow you to configure the prompts behavior.
+ */
 export interface PromptOptions {
     /** When the Prompt is timed out it will then also be destroyed. Default(true) */
     destroyOnTimeout: boolean;
 }
+/**
+ * @category Prompt
+ * The main class used to create & use Prompts.
+ */
 declare class Prompt {
     static ClassName: string;
     /**

@@ -1,5 +1,11 @@
+/**
+ * @enum
+ * This enum represents the types of Time display that this Timer will use.
+ */
 declare enum TimerType {
+    /** The Timer on the Prompt will be displayed with a bar. */
     Bar = 0,
+    /** The Timer on the Prompt will be displayed as a TextLabel in seconds. */
     Digit = 1
 }
 declare enum TimerPosition {
