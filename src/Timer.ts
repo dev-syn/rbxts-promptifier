@@ -1,20 +1,30 @@
 import { TweenService } from '@rbxts/services';
 
+/**
+ * @enum
+ * This enum represents the types of Time display that this Timer will use.
+ */
 enum TimerType {
+    /** The Timer on the Prompt will be displayed with a bar. */
     Bar,
+    /** The Timer on the Prompt will be displayed as a TextLabel in seconds. */
     Digit
 };
 
+/**
+ * @enum
+ * The preset Position's of the Timer within the Prompt.
+ */
 enum TimerPosition {
-    /** The [TopLeft] position used for Prompt_Choice mode. */
+    /** The [TopLeft] position used for Prompt_Choice digital label mode. */
     TopLeft,
-    /** The [TopRight] position used for Prompt_Choice mode. */
+    /** The [TopRight] position used for Prompt_Choice digital label mode. */
     TopRight,
     /** The [Top] position used for a bar placed in the top above the prompt. */
     Top,
-    /** The [BottomLeft] position used for Prompt_Compact mode. */
+    /** The [BottomLeft] position used for `Prompt_Compact` digital label mode. */
     BottomLeft,
-    /** The [BottomRight] position used for Prompt_Compact mode. */
+    /** The [BottomRight] position used for `Prompt_Compact` digital label mode. */
     BottomRight,
     /** The [Bottom] position used for a bar placed on the bottom under the prompt. */
     Bottom,
@@ -22,16 +32,41 @@ enum TimerPosition {
 
 class Timer {
     readonly ClassName: "Timer" = "Timer";
+    /**
+     * @internal
+     * The {@link TimerType} of this Timer.
+     */
     readonly _type: TimerType;
 
-    /** The last started time of this Timer. */
-    _lastStartTime: number;
-    /** The current time in seconds of this timer. */
+    /**
+     * @defaultValue `0` if no start is passed to the constructor.
+     * The current time in seconds of this timer.
+    */
     _time: number;
 
+    /**
+     * @private
+     * The last time that was started on this Timer. It's mainly for {@link Timer.Reset}.
+     */
+    private _lastStartTime: number;
+
+    /**
+     * @private
+     * This represents the actual Instances of the TimerType a TextLabel for digital and a Frame for a Bar.
+     */
     private _timeUI: TextLabel | Frame;
+
+    /**
+     * @private
+     * This is the active tween on the bar if the {@link Timer._type} is {@link Timer.TimerType}.
+     */
     private _activeTween: Tween | undefined = undefined;
 
+    /**
+     * 
+     * @param _type - The type of Timer to create
+     * @param start - What time the Timer should start at
+     */
     constructor(_type: TimerType,start?: number) {
         this._type = _type;
         this._time = start || 0;
@@ -60,13 +95,19 @@ class Timer {
         } else error("Failed to create Timer with invalid _type of TimerType: " + tostring(_type));
     }
 
-    /** Increments the time by 'n' second('s). */
+    /**
+     * Increments the time by 'n' second('s).
+     * @param n - The number to increment on the Timer. Default(1)
+     */
     Increment(n?: number) {
         this._time += (n || 1);
         this.updateUI();
     }
 
-    /** Decrements the time by 'n' second('s). */
+    /**
+     * Decrements the time by 'n' second('s).
+     * @param n - The number to decrement on the Timer. Default(1)
+     */
     Decrement(n?: number) {
         if (!n) n = 1;
 
@@ -76,7 +117,7 @@ class Timer {
         this.updateUI();
     }
 
-    /** This method resets the time to the last set time. */
+    /** This resets the Timer to the last start time. */
     Reset() {
         this._time = this._lastStartTime;
 
@@ -90,7 +131,10 @@ class Timer {
         this.updateUI();
     }
 
-    /** Sets the current time of this Timer. */
+    /**
+     * Sets the Timer to the given time.
+     * @param _time - The amount of time to set in seconds
+     */
     Set(_time: number) {
         this._lastStartTime = _time;
         this._time = _time;
@@ -105,7 +149,11 @@ class Timer {
         this.updateUI();
     }
 
-    /** Sets the position of the Time UI on the prompt. */
+    /**
+     * Sets the position of the Time UI on the prompt. See {@link TimerPosition}.
+     * @param pos - The position to set
+     * @returns void
+     */
     SetPosition(pos: TimerPosition) {
         if (pos === TimerPosition.TopLeft) {
             // TopLeft should only work with digital timers.
@@ -177,7 +225,7 @@ class Timer {
         }
     }
 
-    /** Removes references internally from Timer when use of the Timer is no longer needed. */
+    /** Removes references internally when use of the Timer is no longer needed. */
     Destroy() {
         if (this._timeUI) {
             this._timeUI.Destroy();
@@ -190,6 +238,11 @@ class Timer {
         }
     }
 
+    /**
+     * Updates the current {@link Timer._timeUI} to reflect the updated time.
+     * @private
+     * @returns void
+     */
     private updateUI() {
         if (this._type === TimerType.Bar) {
             const bar: Frame | undefined = this._timeUI.FindFirstChild("Bar") as Frame | undefined;
