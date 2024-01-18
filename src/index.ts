@@ -24,7 +24,7 @@ export enum PromptType {
  * The PromptPayload that is sent during accepted fullfillment of the prompt.
  * @example
  * ```
- * prompt.OnFullfill.Connect((accepted: boolean,payload?: PromptPayload) => {
+ * prompt.OnFulfill.Connect((accepted: boolean,payload?: PromptPayload) => {
  *     if (accepted && payload) {
  *         print(payload.promptContent);
  *     }
@@ -168,13 +168,22 @@ class Prompt {
         destroyOnTimeout: true
     };
 
+    /**
+     * A property that is meant to store a validate function
+     * that will be fired before Prompt.OnFulfill is called; and will
+     * only be called if this function returns true.
+     * @param payload - The PromptPayload data of the Prompt.
+     * @returns boolean - True if the prompt payload is valid, false otherwise.
+     */
+    Validator?: (payload: PromptPayload) => boolean;
+
 // #region Events
 
     /**
      * @event
      * This event is fired when an input or timeout is received.
      */
-    OnFullfill: Signal<[accepted: boolean,payload?: PromptPayload]> = new Signal();
+    OnFulfill: Signal<[accepted: boolean,payload?: PromptPayload]> = new Signal();
 
     /** 
      * @event 
@@ -330,7 +339,13 @@ class Prompt {
                 };
                 extractDataFromContent(this._UI.content,promptPayload.promptContent);
 
-                this.OnFullfill.Fire(true,promptPayload);
+                // If the Prompt is not validated or cancelled during validation then return.
+                if (this.Validator) {
+                    const validated: boolean = this.Validator(promptPayload);
+                    if (!validated || this._cancelled) return;
+                }
+
+                this.OnFulfill.Fire(true,promptPayload);
                 this._triggered = false;
             })
         );
@@ -341,7 +356,7 @@ class Prompt {
                 // Clean the UI connections connections
                 this.cleanConnections();
 
-                this.OnFullfill.Fire(false);
+                this.OnFulfill.Fire(false);
                 this._triggered = false;
             })
         );
@@ -360,7 +375,7 @@ class Prompt {
 
                     // Check if the prompt has timed out
                     if (os.difftime(os.time(),initial) >= prompt.timeOut) {
-                        prompt.OnFullfill.Fire(false);
+                        prompt.OnFulfill.Fire(false);
 
                         if (prompt.options.destroyOnTimeout) {
                             // Destroy the Prompt since it has timed out.
