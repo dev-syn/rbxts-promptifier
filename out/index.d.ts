@@ -20,7 +20,7 @@ export declare enum PromptType {
  * The PromptPayload that is sent during accepted fullfillment of the prompt.
  * @example
  * ```
- * prompt.OnFullfill.Connect((accepted: boolean,payload?: PromptPayload) => {
+ * prompt.OnFulfill.Connect((accepted: boolean,payload?: PromptPayload) => {
  *     if (accepted && payload) {
  *         print(payload.promptContent);
  *     }
@@ -84,10 +84,18 @@ declare class Prompt {
     /** The configurable options of this Prompt. See {@link PromptOptions}*/
     options: PromptOptions;
     /**
+     * A property that is meant to store a validate function
+     * that will be fired before Prompt.OnFulfill is called; and will
+     * only be called if this function returns true.
+     * @param payload - The PromptPayload data of the Prompt.
+     * @returns boolean - True if the prompt payload is valid, false otherwise.
+     */
+    Validator?: (payload: PromptPayload) => boolean;
+    /**
      * @event
      * This event is fired when an input or timeout is received.
      */
-    OnFullfill: Signal<[accepted: boolean, payload?: PromptPayload]>;
+    OnFulfill: Signal<[accepted: boolean, payload?: PromptPayload]>;
     /**
      * @event
      * This event is fired when a prompt is cancelled for external reasons.

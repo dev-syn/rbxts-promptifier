@@ -31,7 +31,7 @@ end
 	 * The PromptPayload that is sent during accepted fullfillment of the prompt.
 	 * @example
 	 * ```
-	 * prompt.OnFullfill.Connect((accepted: boolean,payload?: PromptPayload) => {
+	 * prompt.OnFulfill.Connect((accepted: boolean,payload?: PromptPayload) => {
 	 *     if (accepted && payload) {
 	 *         print(payload.promptContent);
 	 *     }
@@ -145,7 +145,7 @@ do
 		self.options = {
 			destroyOnTimeout = true,
 		}
-		self.OnFullfill = Signal.new()
+		self.OnFulfill = Signal.new()
 		self.OnCancel = Signal.new()
 		self._triggered = false
 		self._cancelled = false
@@ -216,7 +216,14 @@ do
 				promptContent = {},
 			}
 			extractDataFromContent(self._UI.content, promptPayload.promptContent)
-			self.OnFullfill:Fire(true, promptPayload)
+			-- If the Prompt is not validated or cancelled during validation then return.
+			if self.Validator then
+				local validated = self.Validator(promptPayload)
+				if not validated or self._cancelled then
+					return nil
+				end
+			end
+			self.OnFulfill:Fire(true, promptPayload)
 			self._triggered = false
 		end)
 		table.insert(__UIConnections, _arg0)
@@ -224,7 +231,7 @@ do
 		local _arg0_1 = self._UI.declineBtn.MouseButton1Click:Connect(function()
 			-- Clean the UI connections connections
 			self:cleanConnections()
-			self.OnFullfill:Fire(false)
+			self.OnFulfill:Fire(false)
 			self._triggered = false
 		end)
 		table.insert(__UIConnections_1, _arg0_1)
@@ -241,7 +248,7 @@ do
 					end
 					-- Check if the prompt has timed out
 					if os.difftime(os.time(), initial) >= prompt.timeOut then
-						prompt.OnFullfill:Fire(false)
+						prompt.OnFulfill:Fire(false)
 						if prompt.options.destroyOnTimeout then
 							-- Destroy the Prompt since it has timed out.
 							prompt:Destroy()
