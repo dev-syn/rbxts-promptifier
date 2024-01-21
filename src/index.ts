@@ -329,6 +329,13 @@ class Prompt {
 
         // Show the prompt UI
         this._UI.BG.ZIndex = Prompt._promptsScreenUI.GetChildren().size() + 1;
+
+        const incrementedZIndex: number = this._UI.BG.ZIndex + 1;
+        this._UI.content.ZIndex = incrementedZIndex;
+        this._UI.acceptBtn.ZIndex = incrementedZIndex;
+        this._UI.declineBtn.ZIndex = incrementedZIndex;
+        this._UI.title.ZIndex = incrementedZIndex;
+
         this._UI.BG.Visible = true;
 
         this._UIConnections.push(
@@ -349,6 +356,7 @@ class Prompt {
                     if (!validated || this._cancelled) return;
                 }
 
+                this._UI.BG.Visible = false;
                 this.OnFulfill.Fire(true,promptPayload);
                 this._triggered = false;
             })
@@ -360,6 +368,7 @@ class Prompt {
                 // Clean the UI connections connections
                 this.cleanConnections();
 
+                this._UI.BG.Visible = false;
                 this.OnFulfill.Fire(false);
                 this._triggered = false;
             })
