@@ -210,6 +210,12 @@ do
 		self._UI.BG.ZIndex = #Prompt._promptsScreenUI:GetChildren() + 1
 		local incrementedZIndex = self._UI.BG.ZIndex + 1
 		self._UI.content.ZIndex = incrementedZIndex
+		for _, child in self._UI.content:GetChildren() do
+			if not child:IsA("GuiObject") then
+				return nil
+			end
+			child.ZIndex = child.ZIndex + 1
+		end
 		self._UI.acceptBtn.ZIndex = incrementedZIndex
 		self._UI.declineBtn.ZIndex = incrementedZIndex
 		self._UI.title.ZIndex = incrementedZIndex
