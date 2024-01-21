@@ -232,7 +232,11 @@ do
 			-- If the Prompt is not validated or cancelled during validation then return.
 			if self.Validator then
 				local validated = self.Validator(promptPayload)
-				if not validated or self._cancelled then
+				if not validated then
+					warn("Prompt could not be validated.")
+					return nil
+				end
+				if self._cancelled then
 					return nil
 				end
 			end
