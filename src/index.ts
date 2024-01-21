@@ -413,6 +413,8 @@ class Prompt {
             this._timer.Destroy();
             this._timer = undefined;
         }
+        this._UI.BG.Destroy();
+        this._UI = undefined!;
         this._destroyed = true;
     }
 
