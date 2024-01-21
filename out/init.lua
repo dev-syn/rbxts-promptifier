@@ -163,7 +163,8 @@ do
 		elseif promptType == PromptType.Compact then
 			self.title = title
 			self.message = message
-			self._UI = UIResolver.new():setBG(promptCompact):setTitle(promptCompact.Title):setContent(promptCompact.Content):setAccept(promptCompact.ConfirmBtn):setDecline(promptCompact.CloseBtn)
+			local _promptCompact = promptCompact:Clone()
+			self._UI = UIResolver.new():setBG(_promptCompact):setTitle(_promptCompact.Title):setContent(_promptCompact.Content):setAccept(_promptCompact.ConfirmBtn):setDecline(_promptCompact.CloseBtn)
 			-- Create a timer for this prompt
 			if self.timeOut > 1 then
 				self._timer = Timer.new(TimerType.Digit, self.timeOut)
@@ -171,7 +172,8 @@ do
 		elseif promptType == PromptType.Choice then
 			self.title = title
 			self.message = message
-			self._UI = UIResolver.new():setBG(promptChoice):setTitle(promptChoice.Title):setContent(promptChoice.Content):setAccept(promptChoice.YBtn):setDecline(promptChoice.NBtn)
+			local _promptChoice = promptChoice:Clone()
+			self._UI = UIResolver.new():setBG(_promptChoice):setTitle(_promptChoice.Title):setContent(_promptChoice.Content):setAccept(_promptChoice.YBtn):setDecline(_promptChoice.NBtn)
 			-- Create a timer for this prompt
 			if self.timeOut > 1 then
 				self._timer = Timer.new(TimerType.Bar, self.timeOut)
@@ -206,6 +208,11 @@ do
 		self._triggered = true
 		-- Show the prompt UI
 		self._UI.BG.ZIndex = #Prompt._promptsScreenUI:GetChildren() + 1
+		local incrementedZIndex = self._UI.BG.ZIndex + 1
+		self._UI.content.ZIndex = incrementedZIndex
+		self._UI.acceptBtn.ZIndex = incrementedZIndex
+		self._UI.declineBtn.ZIndex = incrementedZIndex
+		self._UI.title.ZIndex = incrementedZIndex
 		self._UI.BG.Visible = true
 		local __UIConnections = self._UIConnections
 		local _arg0 = self._UI.acceptBtn.MouseButton1Click:Connect(function()
@@ -223,6 +230,7 @@ do
 					return nil
 				end
 			end
+			self._UI.BG.Visible = false
 			self.OnFulfill:Fire(true, promptPayload)
 			self._triggered = false
 		end)
@@ -231,6 +239,7 @@ do
 		local _arg0_1 = self._UI.declineBtn.MouseButton1Click:Connect(function()
 			-- Clean the UI connections connections
 			self:cleanConnections()
+			self._UI.BG.Visible = false
 			self.OnFulfill:Fire(false)
 			self._triggered = false
 		end)
@@ -273,6 +282,8 @@ do
 			self._timer:Destroy()
 			self._timer = nil
 		end
+		self._UI.BG:Destroy()
+		self._UI = nil
 		self._destroyed = true
 	end
 	function Prompt:cleanConnections()
