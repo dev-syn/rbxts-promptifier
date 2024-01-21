@@ -262,12 +262,14 @@ class Prompt {
             this.title = title;
             this.message = message;
 
+            const _promptCompact: Prompt_Compact = promptCompact.Clone();
+
             this._UI = new UIResolver()
-            .setBG(promptCompact)
-            .setTitle(promptCompact.Title)
-            .setContent(promptCompact.Content)
-            .setAccept(promptCompact.ConfirmBtn)
-            .setDecline(promptCompact.CloseBtn);
+            .setBG(_promptCompact)
+            .setTitle(_promptCompact.Title)
+            .setContent(_promptCompact.Content)
+            .setAccept(_promptCompact.ConfirmBtn)
+            .setDecline(_promptCompact.CloseBtn);
             
             // Create a timer for this prompt
             if (this.timeOut > 1) this._timer = new Timer(TimerType.Digit,this.timeOut);
@@ -276,12 +278,14 @@ class Prompt {
             this.title = title;
             this.message = message;
 
+            const _promptChoice: Prompt_Choice = promptChoice.Clone();
+
             this._UI = new UIResolver()
-            .setBG(promptChoice)
-            .setTitle(promptChoice.Title)
-            .setContent(promptChoice.Content)
-            .setAccept(promptChoice.YBtn)
-            .setDecline(promptChoice.NBtn);
+            .setBG(_promptChoice)
+            .setTitle(_promptChoice.Title)
+            .setContent(_promptChoice.Content)
+            .setAccept(_promptChoice.YBtn)
+            .setDecline(_promptChoice.NBtn);
 
             // Create a timer for this prompt
             if (this.timeOut > 1) this._timer = new Timer(TimerType.Bar,this.timeOut);
