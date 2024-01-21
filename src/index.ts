@@ -358,7 +358,11 @@ class Prompt {
                 // If the Prompt is not validated or cancelled during validation then return.
                 if (this.Validator) {
                     const validated: boolean = this.Validator(promptPayload);
-                    if (!validated || this._cancelled) return;
+                    if (!validated) {
+                        warn("Prompt could not be validated.");
+                        return;
+                    }
+                    if (this._cancelled) return;
                 }
 
                 this._UI.BG.Visible = false;
