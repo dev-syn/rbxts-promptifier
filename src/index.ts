@@ -93,8 +93,8 @@ function getLowestLayoutOrder(element: GuiObject): number {
 }
 
 /** Extracts content data from UI elements currently supports TextLabel & TextBox Instances.*/
-function extractDataFromElement(element: GuiObject): string | undefined {
-    if (element.IsA("Frame") || element.IsA("ScrollingFrame")) return extractDataFromElement(element);
+function extractDataFromElement(element: GuiObject,contentPayload: Map<string,string>): string | undefined {
+    if (element.IsA("Frame") || element.IsA("ScrollingFrame")) extractDataFromContent(element,contentPayload);
     else if (element.IsA("TextLabel") || element.IsA("TextBox")) return element.Text;
     return undefined;
 }
@@ -103,7 +103,8 @@ function extractDataFromElement(element: GuiObject): string | undefined {
 function extractDataFromContent(content: ScrollingFrame | Frame,contentPayload: Map<string,string>): void {
     for (const child of content.GetChildren()) {
         if (!child.IsA("GuiObject")) continue;
-        const data: string | undefined = extractDataFromElement(child);
+
+        const data: string | undefined = extractDataFromElement(child,contentPayload);
         if (data) contentPayload.set(child.Name,data);
     }
 }
