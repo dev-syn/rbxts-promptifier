@@ -4,7 +4,7 @@
   "description": "This is a package designed to ease the use of prompt-like UI structures prompting users based on a choice or just a notification that could be acknowledged.",
   "main": "out/init.lua",
   "scripts": {
-    "publish": "rbxtsc"
+    "prepare": "rbxtsc"
   },
   "keywords": [],
   "author": "dev-syn",
