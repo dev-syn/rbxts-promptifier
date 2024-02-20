@@ -1,7 +1,11 @@
 import { t } from '@rbxts/t';
 
 type Button = TextButton | ImageButton;
-/** The required UIStructure of Promptifier */
+
+/**
+ * @interface
+ * The required UIStructure of Promptifier
+ */
 interface UIStructure {
     /** A Frame representing the background of the Prompt. */
     BG: Frame,
@@ -145,4 +149,4 @@ class UIResolver {
 
 };
 
-export = UIResolver;
+export { UIResolver, UIStructure };
