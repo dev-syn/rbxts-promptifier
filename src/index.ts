@@ -263,13 +263,13 @@ class Prompt {
             this.message = message;
 
             const _promptCompact: Prompt_Compact = promptCompact.Clone();
-
-            this._UI = new UIResolver()
-            .setBG(_promptCompact)
-            .setTitle(_promptCompact.Title)
-            .setContent(_promptCompact.Content)
-            .setAccept(_promptCompact.ConfirmBtn)
-            .setDecline(_promptCompact.CloseBtn);
+            this._UI = new UIResolver().resolve({
+                BG: _promptCompact,
+                title: _promptCompact.Title,
+                content: _promptCompact.Content,
+                acceptBtn: _promptCompact.ConfirmBtn,
+                declineBtn: _promptCompact.CloseBtn
+            });
             
             // Create a timer for this prompt
             if (this.timeOut > 1) this._timer = new Timer(TimerType.Digit,this.timeOut);
@@ -280,12 +280,13 @@ class Prompt {
 
             const _promptChoice: Prompt_Choice = promptChoice.Clone();
 
-            this._UI = new UIResolver()
-            .setBG(_promptChoice)
-            .setTitle(_promptChoice.Title)
-            .setContent(_promptChoice.Content)
-            .setAccept(_promptChoice.YBtn)
-            .setDecline(_promptChoice.NBtn);
+            this._UI = new UIResolver().resolve({
+                BG: _promptChoice,
+                title: _promptChoice.Title,
+                content: _promptChoice.Content,
+                acceptBtn: _promptChoice.YBtn,
+                declineBtn: _promptChoice.NBtn
+            });
 
             // Create a timer for this prompt
             if (this.timeOut > 1) this._timer = new Timer(TimerType.Bar,this.timeOut);
@@ -306,6 +307,7 @@ class Prompt {
             }
         }
 
+        // Check if a message is present in this Prompt
         if (this.message) {
             // Add a text label to the content to represent the message
             const messageLabel: TextLabel = createDefaultMessageLabel(this.message);
