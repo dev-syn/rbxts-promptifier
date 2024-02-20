@@ -1,6 +1,29 @@
-function isOfInstance(obj: Instance,instType: keyof Instances): boolean {
-    return obj && typeOf(obj) === 'Instance' && obj.IsA(instType);
+import { t } from '@rbxts/t';
+
+type Button = TextButton | ImageButton;
+/** The required UIStructure of Promptifier */
+interface UIStructure {
+    /** A Frame representing the background of the Prompt. */
+    BG: Frame,
+    /** A TextLabel which will act as the title/header for this Prompt. */
+    title: TextLabel,
+    /** A Frame | ScrollingFrame representing the container of the Prompt content. */
+    content: Frame | ScrollingFrame,
+    /** The confirm, yes and accept button that will fulfill as accepted. */
+    acceptBtn: Button,
+    /** The reject, no and decline button that will fulfill as declined. */
+    declineBtn: Button
 }
+
+const TButton = t.union(t.instanceIsA("TextButton"),t.instanceIsA("ImageButton"));
+
+const IUIResolver = t.interface({
+    BG: t.instanceIsA("Frame"),
+    title: t.instanceIsA("TextLabel"),
+    content: t.union(t.instanceIsA("Frame"),t.instanceIsA("ScrollingFrame")),
+    acceptBtn: TButton,
+    declineBtn: TButton
+});
 
 /**
  * **UIResolver**
@@ -9,14 +32,24 @@ function isOfInstance(obj: Instance,instType: keyof Instances): boolean {
  * mapping your custom elements into the expected structure.
  */
 class UIResolver {
+
+    /** A Frame representing the background of the Prompt. */
     BG!: Frame;
+
+    /** A TextLabel which will act as the title/header for this Prompt. */
     title!: TextLabel;
+
+    /** A Frame | ScrollingFrame representing the container of the Prompt content. */
     content!: ScrollingFrame | Frame;
 
+    /** The confirm, yes and accept button that will fulfill as accepted. */
     acceptBtn!: TextButton | ImageButton;
+
+    /** The reject, no and decline button that will fulfill as declined. */
     declineBtn!: TextButton | ImageButton;
 
     /**
+     * Sets the background of this Prompt.
      * @param bg - The background Frame of the Prompt
      * @returns - UIResolver for chaining
      */
@@ -26,7 +59,7 @@ class UIResolver {
     }
 
     /**
-     * 
+     * Sets the title of this Prompt.
      * @param tl - The title TextLabel of the Prompt
      * @returns - UIResolver for chaining
      */
@@ -36,7 +69,7 @@ class UIResolver {
     }
 
     /**
-     * 
+     * Sets the content of this Prompt.
      * @param frame - A ScrollingFrame or Frame that will contain the Prompt content
      * @returns - UIResolver for chaining
      */
@@ -46,7 +79,7 @@ class UIResolver {
     }
 
     /**
-     * 
+     * Sets the accept button of this Prompt.
      * @param btn - The TextButton or ImageButton that will represent accepting the Prompt
      * @returns - UIResolver for chaining
      */
@@ -56,7 +89,7 @@ class UIResolver {
     }
 
     /**
-     * 
+     * Sets the decline button of this Prompt.
      * @param btn - The TextButton or ImageButton that will represent declining the Prompt
      * @returns - UIResolver for chaining
      */
@@ -65,21 +98,34 @@ class UIResolver {
         return this;
     }
 
+    /**
+     * Resolves a structure of UI that is the required structure for Promptifier functionality.
+     * This was designed to simplify the assignment when not chaining in roblox-ts.
+     * @param structure The UIResolver required structure
+     */
+    resolve(structure: UIStructure): void {
+        // If structure doesn't match ignore
+        if (!IUIResolver(structure)) return;
+
+        this.BG = structure.BG;
+        this.title = structure.title;
+        this.content = structure.content;
+        this.acceptBtn = structure.acceptBtn;
+        this.declineBtn = structure.declineBtn;
+    }
+
     /** 
      * Validates the ui links to ensure they fill the requirements.
-     * Throws if any of the elements are missing or invalid types.
+     * Errors if any of the elements are missing or invalid types.
      */
-    validate() {
-        const bg = this.BG;
-        assert(isOfInstance(bg,"Frame"),"BG must be a Frame Instance.")
-        const title = this.title;
-        assert(isOfInstance(title,"TextLabel"),"Title must be a TextLabel Instance.");
-        const content = this.content;
-        assert(isOfInstance(content,"ScrollingFrame") || isOfInstance(content,"Frame"),"Content must be a ScrollingFrame or a Frame Instance.");
-        const acceptBtn = this.acceptBtn;
-        assert(isOfInstance(acceptBtn,"TextButton") || isOfInstance(acceptBtn,"ImageButton"),"AcceptBtn must be a TextButton or a ImageButton Instance.");
-        const declineBtn = this.declineBtn;
-        assert(isOfInstance(declineBtn,"TextButton") || isOfInstance(declineBtn,"ImageButton"),"DeclineBtn must be a TextButton or a ImageButton Instance.");
+    validate(): void {
+        if (!IUIResolver({
+            BG: this.BG,
+            title: this.title,
+            content: this.content,
+            acceptBtn: this.acceptBtn,
+            declineBtn: this.declineBtn
+        })) error("Failed to validate UI structure for UIResolver, you are missing a required UI element.");
     }
 
     /**
@@ -96,6 +142,7 @@ class UIResolver {
             this.declineBtn.Parent === bg
         );
     }
+
 };
 
 export = UIResolver;
