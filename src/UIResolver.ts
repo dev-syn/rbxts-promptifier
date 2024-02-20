@@ -1,5 +1,5 @@
-function isOfInstance(obj: any,instType: keyof Instances): boolean {
-    return obj && typeOf(obj) === 'Instance' && (obj as Instance).IsA(instType);
+function isOfInstance(obj: Instance,instType: keyof Instances): boolean {
+    return obj && typeOf(obj) === 'Instance' && obj.IsA(instType);
 }
 
 /**
