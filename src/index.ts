@@ -371,7 +371,9 @@ class Prompt {
                 this._triggered = false;
             })
         );
+        
 
+        // Listen for when the prompt is declined
         this._UIConnections.push(
             this._UI.declineBtn.MouseButton1Click.Connect(() => {
 
@@ -383,7 +385,7 @@ class Prompt {
                 this._triggered = false;
             })
         );
-
+        
         if (this.timeOut > 1) {
             
             this._timer?.Set(this.timeOut);
