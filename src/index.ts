@@ -6,6 +6,8 @@ import { Prompt_Compact } from './types/Prompt_Compact';
 import UIResolver from './UIResolver';
 import { Timer, TimerType } from './Timer';
 
+const MODULE_PREFIX: "[Promptifier]:" = "[Promptifier]:";
+
 /**
  * @category Prompt
  * The PromptTypes that can be used when creating a new Prompt object.
@@ -109,6 +111,21 @@ function extractDataFromContent(content: ScrollingFrame | Frame,contentPayload: 
     }
 }
 
+function getPromptsScreenGui(): ScreenGui {
+    const playerGui: PlayerGui | undefined = player.FindFirstChildWhichIsA("PlayerGui");
+    if (!playerGui) error(`${MODULE_PREFIX} No PlayerGui can be found.`);
+
+    let _promptsScreenUI: ScreenGui | undefined = playerGui.FindFirstChild("Prompts") as ScreenGui | undefined;
+    if (!_promptsScreenUI) {
+        _promptsScreenUI = new Instance("ScreenGui");
+        _promptsScreenUI.Name = "Prompts";
+        _promptsScreenUI.ResetOnSpawn = false;
+        // Try to have it so the prompts are drawn above every other UI
+        _promptsScreenUI.DisplayOrder = 5000;
+    }
+    return _promptsScreenUI;
+}
+
 /**
  * @category Prompt
  * PromptOptions allow you to configure the prompts behavior.
@@ -126,26 +143,7 @@ export interface PromptOptions {
  */
 class Prompt {
     static ClassName: string = "Prompt";
-
-    /**
-     * @private
-     * The ScreenGui that stores all the Prompt instances in the game.
-     */
-    private static _promptsScreenUI: ScreenGui = new Instance("ScreenGui");
-
-    static {
-        this._promptsScreenUI.Name = "Prompts";
-        this._promptsScreenUI.ResetOnSpawn = false;
-
-        // Try to have it so the prompts are drawn above every other UI
-        this._promptsScreenUI.DisplayOrder = 5000;
-
-        Promise.promisify(() => player.WaitForChild("PlayerGui",25))()
-        .then((playerGui: Instance | undefined) => {
-            this._promptsScreenUI.Parent = playerGui;
-        })
-        .catch((reason: unknown) => warn("Yield timed out for 'PlayerGui' in Prompts with: " + reason));
-    }
+    static _promptsScreenUI?: ScreenGui;
 
     /** 
      * @public
@@ -250,6 +248,7 @@ class Prompt {
     constructor(promptType: PromptType.Compact,title: string,message: string | undefined);
     constructor(promptType: PromptType.Choice,title: string,message: string | undefined);
     constructor(promptType: PromptType,title: string,message: string | undefined,UI?: UIResolver) {
+        // If the prompt is custom validate it
         if (promptType === PromptType.Custom) {
             this.title = title;
             this.message = message;
@@ -314,7 +313,7 @@ class Prompt {
             messageLabel.Parent = this._UI.content;
         }
 
-        this._UI.BG.Parent = Prompt._promptsScreenUI;
+        this._UI.BG.Parent = getPromptsScreenGui();
     }
 
     /**
@@ -327,6 +326,9 @@ class Prompt {
         if (this._triggered) return;
 
         this._triggered = true;
+
+        if (!Prompt._promptsScreenUI)
+            Prompt._promptsScreenUI = getPromptsScreenGui();
 
         // Show the prompt UI
         this._UI.BG.ZIndex = Prompt._promptsScreenUI.GetChildren().size() + 1;
