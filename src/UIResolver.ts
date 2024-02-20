@@ -107,15 +107,16 @@ class UIResolver {
      * This was designed to simplify the assignment when not chaining in roblox-ts.
      * @param structure The UIResolver required structure
      */
-    resolve(structure: UIStructure): void {
+    resolve(structure: UIStructure): this {
         // If structure doesn't match ignore
-        if (!IUIResolver(structure)) return;
+        if (!IUIResolver(structure)) return this;
 
         this.BG = structure.BG;
         this.title = structure.title;
         this.content = structure.content;
         this.acceptBtn = structure.acceptBtn;
         this.declineBtn = structure.declineBtn;
+        return this;
     }
 
     /** 
