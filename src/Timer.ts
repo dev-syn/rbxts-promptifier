@@ -37,7 +37,7 @@ enum TimerPosition {
  * The Timer class is designed to create a timer in seconds that
  * can be displayed on a Bar or with a digital TextLabel.
  */
-class Timer {
+class Timer<T extends TimerType> {
     readonly ClassName: "Timer" = "Timer";
     /**
      * @internal
@@ -62,20 +62,20 @@ class Timer {
      * @private
      * This represents the actual Instances of the TimerType a TextLabel for digital and a Frame for a Bar.
      */
-    private _timeUI: TextLabel | Frame;
+    private _timeUI: T extends TimerType.Digit ? TextLabel : Frame;
 
     /**
      * @private
-     * This is the active tween on the bar if the {@link Timer._type} is {@link Timer.TimerType}.
+     * This is the active tween on the bar if the {@link Timer._type} is {@link TimerType.Bar}.
      */
-    private _activeTween: Tween | undefined = undefined;
+    private _activeTween?: T extends TimerType.Bar ? Tween : undefined = undefined;
 
     /**
      * @private
      * @param _type - The type of Timer to create
      * @param start - What time the Timer should start at
      */
-    constructor(_type: TimerType,start?: number) {
+    constructor(_type: T,start?: number) {
         this._type = _type;
         this._time = start || 0;
         this._lastStartTime = this._time;
@@ -92,13 +92,13 @@ class Timer {
             back.BackgroundColor3 = Color3.fromRGB(50,50,50);
             bar.Parent = back;
 
-            this._timeUI = back;
+            this._timeUI = back as T extends TimerType.Digit ? TextLabel : Frame;
 
         } else if(_type === TimerType.Digit) {
             const tl: TextLabel = new Instance("TextLabel");
             tl.Name = "TimeUI";
             
-            this._timeUI = tl;
+            this._timeUI = tl as T extends TimerType.Digit ? TextLabel : Frame;
             
         } else error("Failed to create Timer with invalid _type of TimerType: " + tostring(_type));
     }
@@ -271,7 +271,7 @@ class Timer {
                 {
                     Size: new UDim2(0,0,1,0)
                 }
-            ); 
+            ) as T extends TimerType.Bar ? Tween : undefined;
         } else if (this._type === TimerType.Digit) {
             (this._timeUI as TextLabel).Text = tostring(this._time);
         }
