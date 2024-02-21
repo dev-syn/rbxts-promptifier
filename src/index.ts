@@ -122,6 +122,7 @@ function getPromptsScreenGui(): ScreenGui {
         _promptsScreenUI.ResetOnSpawn = false;
         // Try to have it so the prompts are drawn above every other UI
         _promptsScreenUI.DisplayOrder = 5000;
+        _promptsScreenUI.Parent = playerGui;
     }
     return _promptsScreenUI;
 }
@@ -254,6 +255,7 @@ class Prompt {
             this.message = message;
 
             if (!UI) error("UIResolver must be given when using custom prompt type.");
+
             // Validate the UI
             UI.validate();
 
@@ -315,7 +317,8 @@ class Prompt {
             messageLabel.Parent = this._UI.content;
         }
 
-        this._UI.BG.Parent = getPromptsScreenGui();
+        if (!Prompt._promptsScreenUI) Prompt._promptsScreenUI = getPromptsScreenGui();
+        this._UI.BG.Parent = Prompt._promptsScreenUI;
     }
 
     /**
@@ -329,11 +332,8 @@ class Prompt {
 
         this._triggered = true;
 
-        if (!Prompt._promptsScreenUI)
-            Prompt._promptsScreenUI = getPromptsScreenGui();
-
         // Show the prompt UI
-        this._UI.BG.ZIndex = Prompt._promptsScreenUI.GetChildren().size() + 1;
+        this._UI.BG.ZIndex = Prompt._promptsScreenUI!.GetChildren().size() + 1;
 
         const incrementedZIndex: number = this._UI.BG.ZIndex + 1;
         this._UI.content.ZIndex = incrementedZIndex;
