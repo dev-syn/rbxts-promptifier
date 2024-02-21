@@ -4,3 +4,4 @@ test/
 *.tsbuildinfo
 out/
 src/types
+debug.log
