@@ -280,8 +280,6 @@ class Prompt {
             if (this.timeOut > 1) this._timer = new Timer(TimerType.Digit,this.timeOut);
 
         } else if (promptType === PromptType.Choice) {
-            this.title = title;
-            this.message = message;
 
             const _promptChoice: Prompt_Choice = promptChoice.Clone();
 
@@ -294,7 +292,7 @@ class Prompt {
                 declineBtn: _promptChoice.NBtn
             });
 
-            if (!isResolvable) error("Failed to resolve UI Structure for prompt 'Compact' type.");
+            if (!isResolvable) error("Failed to resolve UI Structure for prompt 'Choice' type.");
             this._UI = resolver;
 
             // Create a timer for this prompt
@@ -355,6 +353,7 @@ class Prompt {
 
         this._UIConnections.push(
             this._UI.acceptBtn.MouseButton1Click.Connect(() => {
+                print(`${MODULE_PREFIX} Prompt has been accepted!`);
 
                 // Clean the UI connections connections
                 this.cleanConnections();
@@ -385,7 +384,7 @@ class Prompt {
         // Listen for when the prompt is declined
         this._UIConnections.push(
             this._UI.declineBtn.MouseButton1Click.Connect(() => {
-
+                print(`${MODULE_PREFIX} Prompt has been declined!`);
                 // Clean the UI connections connections
                 this.cleanConnections();
 
@@ -395,9 +394,9 @@ class Prompt {
             })
         );
         
-        if (this.timeOut > 1) {
+        if (this.timeOut > 1 && this._timer) {
             
-            this._timer?.Set(this.timeOut);
+            this._timer.Set(this.timeOut);
 
             task.defer((prompt: Prompt) => {
                 let initial: number = os.time();
