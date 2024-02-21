@@ -103,15 +103,27 @@ class UIResolver {
     }
 
     /**
+     * Reassigns the ZIndex of the Prompt UIResolver elements.
+     */
+    assignZIndex(): void {
+        const bgZIndex: number = this.BG.ZIndex;
+        this.title.ZIndex = bgZIndex + 1;
+        this.content.ZIndex = bgZIndex + 1;
+        this.acceptBtn.ZIndex = bgZIndex + 1;
+        this.declineBtn.ZIndex = bgZIndex + 1;
+    }
+
+    /**
      * Resolves a structure of UI that is the required structure for Promptifier functionality.
      * This was designed to simplify the assignment when not chaining in roblox-ts.
      * @param structure The UIResolver required structure
+     * @returns - A boolean indicating whether the structure is valid or not.
      */
-    resolve(structure: UIStructure): this {
+    resolve(structure: UIStructure): boolean {
         // If structure doesn't match ignore
         if (!IUIResolver(structure)) {
-            warn("Could not resolve UI Structure");
-            return this;
+            warn("Failed to validate UI structure for UIResolver, you are missing a required UI element.");
+            return false;
         }
 
         this.BG = structure.BG;
@@ -119,7 +131,7 @@ class UIResolver {
         this.content = structure.content;
         this.acceptBtn = structure.acceptBtn;
         this.declineBtn = structure.declineBtn;
-        return this;
+        return true;
     }
 
     /** 
