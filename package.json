@@ -34,5 +34,7 @@
     "@rbxts/beacon": "^2.1.1",
     "@rbxts/services": "^1.5.1",
     "@rbxts/t": "^3.1.1"
-  }
+  },
+  "repository": "https://github.com/dev-syn/rbxts-promptifier.git",
+  "private": false
 }
