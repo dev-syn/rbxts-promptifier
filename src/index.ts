@@ -353,8 +353,6 @@ class Prompt {
             child.ZIndex = child.ZIndex + 1;
         }
 
-        this._UI.BG.Visible = true;
-
         this._UIConnections.push(
             this._UI.acceptBtn.MouseButton1Click.Connect(() => {
 
@@ -412,6 +410,7 @@ class Prompt {
                     // Check if the prompt has timed out
                     if (os.difftime(os.time(),initial) >= prompt.timeOut) {
                         prompt.OnFulfill.Fire(false);
+                        prompt._UI.BG.Visible = false;
 
                         if (prompt.options.destroyOnTimeout) {
                             // Destroy the Prompt since it has timed out.
@@ -422,6 +421,8 @@ class Prompt {
                 }
             },this);
         }
+
+        this._UI.BG.Visible = true;
     }
 
     /**
