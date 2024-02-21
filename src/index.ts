@@ -44,9 +44,9 @@ export enum PromptType {
  * }
  * ```
  */
-export type PromptPayload = {
+export type PromptPayload<TimerT extends TimerType | null = null> = {
     /** The Prompt that this payload belongs too. */
-    prompt: Prompt;
+    prompt: Prompt<TimerT>;
     /** A map of the extracted content of this prompt. { [InstanceName]: Content } */
     promptContent: Map<string,string>;
 }
@@ -142,7 +142,7 @@ export interface PromptOptions {
  * @category Prompt
  * The main class used to create & use Prompts.
  */
-class Prompt {
+class Prompt<T extends TimerType | null = null> {
     static ClassName: string = "Prompt";
     static _promptsScreenUI?: ScreenGui;
 
@@ -175,7 +175,7 @@ class Prompt {
      * @param payload - The PromptPayload data of the Prompt.
      * @returns boolean - True if the prompt payload is valid, false otherwise.
      */
-    Validator?: (payload: PromptPayload) => boolean;
+    Validator?: (payload: PromptPayload<T>) => boolean;
 
 // #region Events
 
@@ -183,7 +183,7 @@ class Prompt {
      * @event
      * This event is fired when an input or timeout is received.
      */
-    OnFulfill: Signal<[accepted: boolean,payload?: PromptPayload]> = new Signal();
+    OnFulfill: Signal<[accepted: boolean,payload?: PromptPayload<T>]> = new Signal();
 
     /** 
      * @event 
@@ -205,7 +205,7 @@ class Prompt {
      * @private
      * The {@link Timer} of this Prompt used for time management.
      */
-    private _timer?: Timer;
+    private _timer?: T extends TimerType ? Timer<T> : undefined;
 
     /** 
      * @private
@@ -277,7 +277,7 @@ class Prompt {
             this._UI = resolver;
 
             // Create a timer for this prompt
-            if (this.timeOut > 1) this._timer = new Timer(TimerType.Digit,this.timeOut);
+            if (this.timeOut > 1) this._timer = new Timer(TimerType.Digit,this.timeOut) as T extends TimerType ? Timer<T> : undefined;
 
         } else if (promptType === PromptType.Choice) {
 
@@ -296,7 +296,7 @@ class Prompt {
             this._UI = resolver;
 
             // Create a timer for this prompt
-            if (this.timeOut > 1) this._timer = new Timer(TimerType.Bar,this.timeOut);
+            if (this.timeOut > 1) this._timer = new Timer(TimerType.Bar,this.timeOut) as T extends TimerType ? Timer<T> : undefined;
 
         } else error(`Unknown PromptType: '${promptType}'`);
 
@@ -358,7 +358,7 @@ class Prompt {
                 // Clean the UI connections connections
                 this.cleanConnections();
 
-                const promptPayload: PromptPayload = {
+                const promptPayload: PromptPayload<T> = {
                     prompt: this,
                     promptContent: new Map()
                 };
@@ -395,10 +395,12 @@ class Prompt {
         );
         
         if (this.timeOut > 1 && this._timer) {
+
+            
             
             this._timer.Set(this.timeOut);
 
-            task.defer((prompt: Prompt) => {
+            task.defer((prompt: Prompt<T>) => {
                 let initial: number = os.time();
                 while (prompt._triggered && !prompt._cancelled && !prompt._destroyed) {
 
