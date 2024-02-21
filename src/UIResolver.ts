@@ -109,7 +109,10 @@ class UIResolver {
      */
     resolve(structure: UIStructure): this {
         // If structure doesn't match ignore
-        if (!IUIResolver(structure)) return this;
+        if (!IUIResolver(structure)) {
+            warn("Could not resolve UI Structure");
+            return this;
+        }
 
         this.BG = structure.BG;
         this.title = structure.title;
