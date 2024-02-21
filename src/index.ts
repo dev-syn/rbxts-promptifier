@@ -249,30 +249,33 @@ class Prompt {
     constructor(promptType: PromptType.Compact,title: string,message: string | undefined);
     constructor(promptType: PromptType.Choice,title: string,message: string | undefined);
     constructor(promptType: PromptType,title: string,message: string | undefined,UI?: UIResolver) {
-        // If the prompt is custom validate it
-        if (promptType === PromptType.Custom) {
-            this.title = title;
-            this.message = message;
 
+        this.title = title;
+        this.message = message;
+
+        if (promptType === PromptType.Custom) {
+
+            // If the prompt is custom validate it
             if (!UI) error("UIResolver must be given when using custom prompt type.");
 
-            // Validate the UI
             UI.validate();
-
             this._UI = UI;
         } else if (promptType === PromptType.Compact) {
-            this.title = title;
-            this.message = message;
 
             const _promptCompact: Prompt_Compact = promptCompact.Clone();
-            this._UI = new UIResolver().resolve({
+
+            const resolver: UIResolver = new UIResolver();
+            const isResolvable: boolean = resolver.resolve({
                 BG: _promptCompact,
                 title: _promptCompact.Title,
                 content: _promptCompact.Content,
                 acceptBtn: _promptCompact.ConfirmBtn,
                 declineBtn: _promptCompact.CloseBtn
             });
-            
+
+            if (!isResolvable) error("Failed to resolve UI Structure for prompt 'Compact' type.");
+            this._UI = resolver;
+
             // Create a timer for this prompt
             if (this.timeOut > 1) this._timer = new Timer(TimerType.Digit,this.timeOut);
 
@@ -282,7 +285,8 @@ class Prompt {
 
             const _promptChoice: Prompt_Choice = promptChoice.Clone();
 
-            this._UI = new UIResolver().resolve({
+            const resolver: UIResolver = new UIResolver();
+            const isResolvable: boolean = resolver.resolve({
                 BG: _promptChoice,
                 title: _promptChoice.Title,
                 content: _promptChoice.Content,
@@ -290,13 +294,15 @@ class Prompt {
                 declineBtn: _promptChoice.NBtn
             });
 
+            if (!isResolvable) error("Failed to resolve UI Structure for prompt 'Compact' type.");
+            this._UI = resolver;
+
             // Create a timer for this prompt
             if (this.timeOut > 1) this._timer = new Timer(TimerType.Bar,this.timeOut);
 
         } else error(`Unknown PromptType: '${promptType}'`);
 
         this._type = promptType;
-
         this._UI.title.Text = this.title;
 
         if (this._UI.content.IsA("ScrollingFrame")) {
@@ -309,14 +315,17 @@ class Prompt {
             }
         }
 
-        // Check if a message is present in this Prompt
+        // Check if a message is present for this prompt
         if (this.message) {
+
             // Add a text label to the content to represent the message
             const messageLabel: TextLabel = createDefaultMessageLabel(this.message);
             messageLabel.LayoutOrder = getLowestLayoutOrder(this._UI.content) - 1;
             messageLabel.Parent = this._UI.content;
+
         }
 
+        // Assign this UI to the Prompts ScreenGui
         if (!Prompt._promptsScreenUI) Prompt._promptsScreenUI = getPromptsScreenGui();
         this._UI.BG.Parent = Prompt._promptsScreenUI;
     }
@@ -332,8 +341,9 @@ class Prompt {
 
         this._triggered = true;
 
-        // Show the prompt UI
+        // Adjust the ZIndex for this Prompt
         this._UI.BG.ZIndex = Prompt._promptsScreenUI!.GetChildren().size() + 1;
+        this._UI.assignZIndex();
 
         const incrementedZIndex: number = this._UI.BG.ZIndex + 1;
         this._UI.content.ZIndex = incrementedZIndex;
@@ -342,9 +352,6 @@ class Prompt {
 
             child.ZIndex = child.ZIndex + 1;
         }
-        this._UI.acceptBtn.ZIndex = incrementedZIndex;
-        this._UI.declineBtn.ZIndex = incrementedZIndex;
-        this._UI.title.ZIndex = incrementedZIndex;
 
         this._UI.BG.Visible = true;
 
