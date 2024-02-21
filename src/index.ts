@@ -346,7 +346,7 @@ class Prompt {
         const incrementedZIndex: number = this._UI.BG.ZIndex + 1;
         this._UI.content.ZIndex = incrementedZIndex;
         for (const child of this._UI.content.GetChildren()) {
-            if (!child.IsA("GuiObject")) return;
+            if (!child.IsA("GuiObject")) continue;
 
             child.ZIndex = child.ZIndex + 1;
         }
