@@ -1,5 +1,13 @@
 import { TweenService } from '@rbxts/services';
 
+type TimerBar = Frame & {
+    Bar: Frame;
+}
+
+type TimerDigit = Frame & {
+    Digit: TextLabel;
+}
+
 /**
  * @enum
  * This enum represents the types of Time display that this Timer will use.
@@ -9,7 +17,7 @@ enum TimerType {
     Bar,
     /** The Timer on the Prompt will be displayed as a TextLabel in seconds. */
     Digit
-};
+}
 
 /**
  * @enum
@@ -52,17 +60,17 @@ class Timer<T extends TimerType> {
     */
     _time: number;
 
+    /** This represents the actual Instances of the TimerType a TextLabel for digital and a Frame for a Bar. */
+    _timeUI: T extends TimerType.Digit ? TimerDigit : TimerBar;
+
+    /** The BorderSize of the element that will be the _timeUI Parent. */
+    parentBorderSize: number = 0;
+
     /**
      * @private
      * The last time that was started on this Timer. It's mainly for {@link Timer.Reset}.
      */
     private _lastStartTime: number;
-
-    /**
-     * @private
-     * This represents the actual Instances of the TimerType a TextLabel for digital and a Frame for a Bar.
-     */
-    private _timeUI: T extends TimerType.Digit ? TextLabel : Frame;
 
     /**
      * @private
@@ -83,22 +91,38 @@ class Timer<T extends TimerType> {
         if (_type === TimerType.Bar) {
             const back: Frame = new Instance("Frame");
             back.Name = "TimeUI";
-            back.Size = new UDim2(1,0,0.15,0);
-            back.BackgroundColor3 = Color3.fromRGB(68,68,68);
+            back.Size = new UDim2(1,0,0.05,0);
+            back.BackgroundColor3 = Color3.fromRGB(50,50,50);
 
             const bar: Frame = new Instance("Frame");
             bar.Name = "Bar";
             bar.Size = new UDim2(1,0,1,0);
-            back.BackgroundColor3 = Color3.fromRGB(50,50,50);
+            bar.BackgroundColor3 = Color3.fromRGB(80,80,80);
             bar.Parent = back;
 
-            this._timeUI = back as T extends TimerType.Digit ? TextLabel : Frame;
+            this._timeUI = back as T extends TimerType.Digit ? TimerDigit : TimerBar;
+            this.SetPosition(TimerPosition.Bottom);
 
         } else if(_type === TimerType.Digit) {
+            const back: Frame = new Instance("Frame");
+            back.Name = "TimeUI";
+            back.SizeConstraint = Enum.SizeConstraint.RelativeYY;
+            back.Size = new UDim2(0.1,0,0.1,0);
+            back.BackgroundColor3 = Color3.fromRGB(68,68,68);
+
             const tl: TextLabel = new Instance("TextLabel");
-            tl.Name = "TimeUI";
+            tl.Name = "Digit";
+            tl.BackgroundTransparency = 1
+            tl.Size = new UDim2(0.97,0,0.97,0);
+            tl.AnchorPoint = new Vector2(0.5,0.5);
+            tl.Position = new UDim2(0.5,0,0.5,0);
+            tl.TextColor3 = Color3.fromRGB(255,255,255);
+            tl.Font = Enum.Font.Code;
+            tl.TextScaled = true;
+            tl.Parent = back;
             
-            this._timeUI = tl as T extends TimerType.Digit ? TextLabel : Frame;
+            this._timeUI = back as T extends TimerType.Digit ? TimerDigit : TimerBar;
+            this.SetPosition(TimerPosition.BottomLeft);
             
         } else error("Failed to create Timer with invalid _type of TimerType: " + tostring(_type));
     }
@@ -151,7 +175,7 @@ class Timer<T extends TimerType> {
             // Reset the Timer bar
             this._activeTween?.Cancel();
             this._activeTween = undefined;
-            this._timeUI.Size = new UDim2(1,0,1,0);
+            (this._timeUI as TimerBar).Bar.Size = new UDim2(1,0,1,0);
         }
 
         this.updateUI();
@@ -170,10 +194,8 @@ class Timer<T extends TimerType> {
                 return;
             }
 
-            this._timeUI.Visible = false;
             this._timeUI.AnchorPoint = new Vector2(0,0);
             this._timeUI.Position = new UDim2(0.03,0,0.03,0);
-            this._timeUI.Visible = true;
         } else if (pos === TimerPosition.TopRight) {
             // TopRight should only work with digital timers.
             if (this._type === TimerType.Bar) {
@@ -181,10 +203,8 @@ class Timer<T extends TimerType> {
                 return;
             }
 
-            this._timeUI.Visible = false;
             this._timeUI.AnchorPoint = new Vector2(1,0);
             this._timeUI.Position = new UDim2(0.97,0,0.03,0);
-            this._timeUI.Visible = true;
         } else if(pos === TimerPosition.Top) {
             // Top should only work with bar timers.
             if (this._type === TimerType.Digit) {
@@ -192,10 +212,8 @@ class Timer<T extends TimerType> {
                 return;
             }
 
-            this._timeUI.Visible = false;
-            this._timeUI.AnchorPoint = new Vector2(0.5,0);
-            this._timeUI.Position = new UDim2(0.5,0,-this._timeUI.Size.Y.Scale,0);
-            this._timeUI.Visible = true;
+            this._timeUI.AnchorPoint = new Vector2(0,0);
+            this._timeUI.Position = new UDim2(0,0,-this._timeUI.Size.Y.Scale,-(this.parentBorderSize + 2));
         } else if (pos === TimerPosition.BottomLeft) {
             // BottomLeft should only work with digital timers.
             if (this._type === TimerType.Bar) {
@@ -203,11 +221,8 @@ class Timer<T extends TimerType> {
                 return;
             }
 
-            this._timeUI.Visible = false;
             this._timeUI.AnchorPoint = new Vector2(0,1);
             this._timeUI.Position = new UDim2(0.03,0,0.97,0);
-
-            this._timeUI.Visible = true;
         } else if (pos === TimerPosition.BottomRight) {
             // BottomRight should only work with digital timers.
             if (this._type === TimerType.Bar) {
@@ -215,10 +230,8 @@ class Timer<T extends TimerType> {
                 return;
             }
 
-            this._timeUI.Visible = false;
             this._timeUI.AnchorPoint = new Vector2(1,1);
             this._timeUI.Position = new UDim2(0.97,0,0.97,0);
-            this._timeUI.Visible = true;
         } else if(pos === TimerPosition.Bottom) {
             // Bottom should only work with bar timers.
             if (this._type === TimerType.Digit) {
@@ -226,10 +239,25 @@ class Timer<T extends TimerType> {
                 return;
             }
 
-            this._timeUI.Visible = false;
-            this._timeUI.AnchorPoint = new Vector2(0.5,0);
-            this._timeUI.Position = new UDim2(0.5,0,1,0);
-            this._timeUI.Visible = true;
+            this._timeUI.AnchorPoint = new Vector2(0,0);
+            this._timeUI.Position = new UDim2(0,0,1,this.parentBorderSize);
+        }
+    }
+
+    /** Sets the ZIndex of the Timer depending on the TimerType. */
+    SetZIndex(zIndex: number) {
+        if (!this._timeUI) return;
+
+        if (this._type === TimerType.Bar) {
+            const timerBar: TimerBar = this._timeUI as TimerBar;
+
+            timerBar.ZIndex = zIndex;
+            timerBar.Bar.ZIndex = zIndex + 1;
+        } else if (this._type === TimerType.Digit) {
+            const timerDigit: TimerDigit = this._timeUI as TimerDigit;
+
+            timerDigit.ZIndex = zIndex;
+            timerDigit.Digit.ZIndex = zIndex + 1;
         }
     }
 
@@ -249,12 +277,10 @@ class Timer<T extends TimerType> {
     /**
      * Updates the current {@link Timer._timeUI} to reflect the updated time.
      * @private
-     * @returns void
      */
     private updateUI() {
         if (this._type === TimerType.Bar) {
-            const bar: Frame | undefined = this._timeUI.FindFirstChild("Bar") as Frame | undefined;
-            assert(bar,"Bar Frame is not assigned could not updateUI for TimerType.Bar");
+            const timeBar: TimerBar = this._timeUI as TimerBar;
 
             // If the time is 0 do not create a new tween
             if (this._time <= 0) return;
@@ -262,18 +288,21 @@ class Timer<T extends TimerType> {
             if (this._activeTween && this._activeTween.PlaybackState === Enum.PlaybackState.Playing) return;
 
             this._activeTween = TweenService.Create(
-                bar,
+                timeBar.Bar,
                 new TweenInfo(
                     this._time,
                     Enum.EasingStyle.Linear,
                     Enum.EasingDirection.InOut
                 ),
                 {
-                    Size: new UDim2(0,0,1,0)
+                    Size: new UDim2(0,0,timeBar.Bar.Size.Y.Scale,0)
                 }
             ) as T extends TimerType.Bar ? Tween : undefined;
+            this._activeTween!.Play();
         } else if (this._type === TimerType.Digit) {
-            (this._timeUI as TextLabel).Text = tostring(this._time);
+            const timerDigit = this._timeUI as TimerDigit;
+        
+            timerDigit.Digit.Text = tostring(this._time);
         }
     }
 
