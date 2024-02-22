@@ -4,7 +4,7 @@ import { Signal } from '@rbxts/beacon';
 import { Prompt_Choice } from './types/Prompt_Choice';
 import { Prompt_Compact } from './types/Prompt_Compact';
 import { UIResolver } from './UIResolver';
-import { Timer, TimerType } from './Timer';
+import { Timer, TimerPosition, TimerType } from './Timer';
 
 const MODULE_PREFIX: "[Promptifier]:" = "[Promptifier]:";
 
@@ -128,7 +128,19 @@ function getPromptsScreenGui(): ScreenGui {
 }
 
 /**
+ * @enum {number}
+ * This is an enum of the TimeoutBehavior which contains behaviour for when the Prompt times out.
+ */
+enum TimeoutBehavior {
+    /** The Prompt will be cancelled when timed out. This will call the @see {@link Prompt.OnCancel} event. */
+    CancelOnTimeout,
+    /** The Prompt will be rejected when timed out. This will call the @see {@link Prompt.OnFullfilled} event with accepted as declined(false). */
+    RejectOnTimeout
+}
+
+/**
  * @category Prompt
+ * @interface
  * PromptOptions allow you to configure the prompts behavior.
  */
 export interface PromptOptions {
@@ -136,6 +148,8 @@ export interface PromptOptions {
     /** When the Prompt is timed out it will then also be destroyed. Default(true) */
     destroyOnTimeout: boolean;
 
+    /** Controls the behavior when the Prompt is timed out @see {TimeoutBehavior} */
+    timeoutBehavior: TimeoutBehavior;
 }
 
 /**
@@ -165,7 +179,8 @@ class Prompt<T extends TimerType | null = null> {
 
     /** The configurable options of this Prompt. See {@link PromptOptions}*/
     options: PromptOptions = {
-        destroyOnTimeout: true
+        destroyOnTimeout: true,
+        timeoutBehavior: TimeoutBehavior.RejectOnTimeout
     };
 
     /**
@@ -189,7 +204,7 @@ class Prompt<T extends TimerType | null = null> {
      * @event 
      * This event is fired when a prompt is cancelled for external reasons.
      */
-    OnCancel: Signal<string | undefined> = new Signal();
+    OnCancel: Signal<[reason?: string]> = new Signal();
 
 // #endregion
 
@@ -276,9 +291,6 @@ class Prompt<T extends TimerType | null = null> {
             if (!isResolvable) error("Failed to resolve UI Structure for prompt 'Compact' type.");
             this._UI = resolver;
 
-            // Create a timer for this prompt
-            if (this.timeOut > 1) this._timer = new Timer(TimerType.Digit,this.timeOut) as T extends TimerType ? Timer<T> : undefined;
-
         } else if (promptType === PromptType.Choice) {
 
             const _promptChoice: Prompt_Choice = promptChoice.Clone();
@@ -294,10 +306,6 @@ class Prompt<T extends TimerType | null = null> {
 
             if (!isResolvable) error("Failed to resolve UI Structure for prompt 'Choice' type.");
             this._UI = resolver;
-
-            // Create a timer for this prompt
-            if (this.timeOut > 1) this._timer = new Timer(TimerType.Bar,this.timeOut) as T extends TimerType ? Timer<T> : undefined;
-
         } else error(`Unknown PromptType: '${promptType}'`);
 
         this._type = promptType;
@@ -345,11 +353,9 @@ class Prompt<T extends TimerType | null = null> {
 
         const incrementedZIndex: number = this._UI.BG.ZIndex + 1;
         this._UI.content.ZIndex = incrementedZIndex;
-        for (const child of this._UI.content.GetChildren()) {
-            if (!child.IsA("GuiObject")) continue;
 
-            child.ZIndex = child.ZIndex + 1;
-        }
+        // For each GuiObject in content; assign ZIndex + 1
+        (this._UI.content.GetChildren().filter(child => child.IsA("GuiObject")) as GuiObject[]).forEach(child => child.ZIndex = incrementedZIndex + 1);
 
         this._UIConnections.push(
             this._UI.acceptBtn.MouseButton1Click.Connect(() => {
@@ -393,37 +399,62 @@ class Prompt<T extends TimerType | null = null> {
                 this._triggered = false;
             })
         );
-        
-        if (this.timeOut > 1 && this._timer) {
+// #region TIMEOUT_HANDLER
 
-            
-            
-            this._timer.Set(this.timeOut);
+        if (this.timeOut > 1) {
 
-            task.defer((prompt: Prompt<T>) => {
-                let initial: number = os.time();
-                while (prompt._triggered && !prompt._cancelled && !prompt._destroyed) {
-
-                    if (prompt._timer) {
-                        prompt._timer.Decrement(1);
-                    }
-
-                    // Check if the prompt has timed out
-                    if (os.difftime(os.time(),initial) >= prompt.timeOut) {
-                        prompt.OnFulfill.Fire(false);
-                        prompt._UI.BG.Visible = false;
-
-                        if (prompt.options.destroyOnTimeout) {
-                            // Destroy the Prompt since it has timed out.
-                            prompt.Destroy();
-                        } else break; // Remember to break to ensure that this thread closes.
-                    }
-                    task.wait(1);
+            // Create a timer for this prompt
+            if (!this._timer) {
+                if (this._type === PromptType.Choice) {
+                    this._timer = new Timer<TimerType.Bar>(TimerType.Bar,this.timeOut) as T extends TimerType ? Timer<T> : undefined;
+                    this._timer!.parentBorderSize = this._UI.BG.BorderSizePixel;
+                    this._timer!.SetPosition(TimerPosition.Bottom);
+                } else if (this._type === PromptType.Compact) {
+                    this._timer = new Timer<TimerType.Digit>(TimerType.Digit,this.timeOut) as T extends TimerType ? Timer<T> : undefined;
+                    this._timer!.parentBorderSize = this._UI.BG.BorderSizePixel;
+                    this._timer!.SetPosition(TimerPosition.BottomLeft);
                 }
-            },this);
+            }
+
+            // If a timer is present; start the timer
+            if (this._timer) {
+                this._timer.SetZIndex(incrementedZIndex);
+                this._timer._timeUI.Parent = this._UI.BG;
+                this._timer.Set(this.timeOut);
+
+                task.defer((prompt: Prompt<T>) => {
+                    let initial: number = os.time();
+                    while (prompt._triggered && !prompt._cancelled && !prompt._destroyed) {
+    
+                        if (prompt._timer) prompt._timer.Decrement();
+    
+                        // Check if the prompt has timed out
+                        if (os.difftime(os.time(),initial) >= prompt.timeOut) {
+                            prompt._UI.BG.Visible = false;
+
+                            if (prompt.options.timeoutBehavior === TimeoutBehavior.CancelOnTimeout)
+                                prompt.OnCancel.Fire("Prompt has timed out.");
+                            else prompt.OnFulfill.Fire(false);
+    
+                            if (prompt.options.destroyOnTimeout) {
+                                // Destroy the Prompt since it has timed out.
+                                prompt.Destroy();
+                            } else break; // Remember to break to ensure that this thread closes.
+                        }
+                        task.wait(1);
+                    }
+                },this);
+            }
         }
 
+// #endregion
+
         this._UI.BG.Visible = true;
+    }
+
+    /** This method exposes _timer allowing you to set custom timer objects for your custom prompts. */
+    SetTimer(timer: Timer<T extends TimerType ? T : never>) {
+        this._timer = timer as T extends TimerType ? Timer<T> : undefined;
     }
 
     /**
