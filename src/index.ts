@@ -131,10 +131,10 @@ function getPromptsScreenGui(): ScreenGui {
  * @enum {number}
  * This is an enum of the TimeoutBehavior which contains behaviour for when the Prompt times out.
  */
-enum TimeoutBehavior {
+export enum TimeoutBehavior {
     /** The Prompt will be cancelled when timed out. This will call the @see {@link Prompt.OnCancel} event. */
     CancelOnTimeout,
-    /** The Prompt will be rejected when timed out. This will call the @see {@link Prompt.OnFullfilled} event with accepted as declined(false). */
+    /** The Prompt will be rejected when timed out. This will call the @see {@link Prompt.OnFulfill} event with accepted as declined(false). */
     RejectOnTimeout
 }
 

@@ -1,10 +1,12 @@
 import { TweenService } from '@rbxts/services';
 
-type TimerBar = Frame & {
+/** The Timer Instance for the TimerType.Bar */
+export type TimerBar = Frame & {
     Bar: Frame;
 }
 
-type TimerDigit = Frame & {
+/** The Timer Instance for the TimerType.Digit */
+export type TimerDigit = Frame & {
     Digit: TextLabel;
 }
 
@@ -12,7 +14,7 @@ type TimerDigit = Frame & {
  * @enum
  * This enum represents the types of Time display that this Timer will use.
  */
-enum TimerType {
+export enum TimerType {
     /** The Timer on the Prompt will be displayed with a bar. */
     Bar,
     /** The Timer on the Prompt will be displayed as a TextLabel in seconds. */
@@ -23,7 +25,7 @@ enum TimerType {
  * @enum
  * The preset Position's of the Timer within the Prompt.
  */
-enum TimerPosition {
+export enum TimerPosition {
     /** The [TopLeft] position used for Prompt_Choice digital label mode. */
     TopLeft,
     /** The [TopRight] position used for Prompt_Choice digital label mode. */
@@ -308,4 +310,4 @@ class Timer<T extends TimerType> {
 
 };
 
-export { Timer, TimerType, TimerPosition };
+export { Timer };
