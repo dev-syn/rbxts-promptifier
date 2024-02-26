@@ -7,6 +7,8 @@ import { UIResolver } from './UIResolver';
 import { Timer, TimerPosition, TimerType } from './Timer';
 import { t } from '@rbxts/t';
 
+// #region TYPE_RELATED
+
 /**
  * @category Prompt
  * The PromptTypes that can be used when creating a new Prompt object.
@@ -21,8 +23,8 @@ export enum PromptType {
 }
 
 /**
- * @category Prompt
  * The PromptPayload that is sent during accepted fullfillment of the prompt.
+ * @category Prompt
  * @example
  * ```
  * prompt.OnFulfill.Connect((accepted: boolean,payload?: PromptPayload) => {
@@ -50,6 +52,40 @@ export type PromptPayload<TimerT extends TimerType | null = null> = {
     promptContent: Map<string,string>;
 }
 
+/**
+ * This is an enum of the TimeoutBehavior which contains behaviour for when the Prompt times out.
+ * @enum {number}
+ */
+enum TimeoutBehavior {
+    /** The Prompt will be cancelled when timed out. This will call the {@link Prompt.OnCancel} event. */
+    CancelOnTimeout,
+    /** The Prompt will be rejected when timed out. This will call the {@link Prompt.OnFulfill} event with accepted as declined(false). */
+    RejectOnTimeout
+}
+
+/**
+ * PromptOptions allow you to configure the prompts behavior.
+ * @category Prompt
+ * @interface
+ */
+export interface PromptOptions {
+
+    /**
+     * When the Prompt is timed out it will then also be destroyed.
+     * @defaultValue true
+     */
+    destroyOnTimeout: boolean;
+
+    /**
+     * Controls the behavior when the Prompt is timed out.
+     * @defaultValue {@link TimeoutBehavior.RejectOnTimeout}
+     * @see {@link TimeoutBehavior}
+     */
+    timeoutBehavior: TimeoutBehavior;
+}
+
+// #endregion
+
 const promptChoice: Prompt_Choice = script.FindFirstChild("PromptInstances")!.FindFirstChild("Prompt_Choice") as Prompt_Choice;
 const promptCompact: Prompt_Compact = script.FindFirstChild("PromptInstances")!.FindFirstChild("Prompt_Compact") as Prompt_Compact;
 
@@ -57,7 +93,7 @@ const player: Player = PlayersService.LocalPlayer;
 
 // #region MODULE_FUNCTIONS
 
-/** Creates the default UIListLayout inserted into Prompt._UI.content if it's a Scrolling Frame. */
+/** Creates the default UIListLayout inserted into Prompt._UI.content if it's a ScrollingFrame. */
 function createDefaultUIListLayout(): UIListLayout {
     const listLayout: UIListLayout = new Instance("UIListLayout");
     listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center;
@@ -84,7 +120,11 @@ function createDefaultMessageLabel(text: string,bgColor?: Color3): TextLabel {
     return messageLabel;
 }
 
-/** Gets the lowest layout order of all child elements if no elements are present '0' is returned. */
+/**
+ * Gets the lowest layout order of all child elements.
+ * @param element - The parent element to find the lowest layout order from
+ * @returns - A number of the lowest layout order or if no elements are present 0 is returned.
+ */
 function getLowestLayoutOrder(element: GuiObject): number {
     let lowestOrder: number | undefined = undefined;
     for (const child of element.GetChildren()) {
@@ -132,33 +172,8 @@ function getPromptsScreenGui(): ScreenGui {
 // #endregion
 
 /**
- * @enum {number}
- * This is an enum of the TimeoutBehavior which contains behaviour for when the Prompt times out.
- */
-enum TimeoutBehavior {
-    /** The Prompt will be cancelled when timed out. This will call the @see {@link Prompt.OnCancel} event. */
-    CancelOnTimeout,
-    /** The Prompt will be rejected when timed out. This will call the @see {@link Prompt.OnFulfill} event with accepted as declined(false). */
-    RejectOnTimeout
-}
-
-/**
- * @category Prompt
- * @interface
- * PromptOptions allow you to configure the prompts behavior.
- */
-export interface PromptOptions {
-
-    /** When the Prompt is timed out it will then also be destroyed. Default(true) */
-    destroyOnTimeout: boolean;
-
-    /** Controls the behavior when the Prompt is timed out @see {TimeoutBehavior} */
-    timeoutBehavior: TimeoutBehavior;
-}
-
-/**
- * @category Prompt
  * The main class used to create & use Prompts.
+ * @category Prompt
  * @example
  * const prompt: Prompt = new Prompt(PromptType.Choice,"ExamplePrompt","Example message") || new Prompt(PromptType.Compact,"ExamplePrompt","Example message") || new Prompt(PromptType.Custom,"ExamplePrompt","Example message");
  * prompt.OnFulfill.Connect((accepted: boolean,payload: PromptPayload) => {
@@ -190,20 +205,16 @@ class Prompt<T extends TimerType | null = null> {
     private static _promptsScreenUI?: ScreenGui;
 // #endregion
 
-    /** 
-     * @public
-     * The title of the Prompt.
-     */
+    /** The title of the Prompt. */
     Title: string;
     /**
-     * @public
      * The message of the Prompt. This is optional and when toggled a TextLabel
      * will be added to content for you with your specified message.
      */
     Message?: string;
     /**
-     * @defaultValue `0` No timeout will be present, and the prompt will function indefinitely until Destroyed.
      * The timeout of this Prompt, when a prompt times out it will fullfill as declined.
+     * @defaultValue 0 when no timeout will be present, and the prompt will function indefinitely until {@link Prompt.Destroy}.
      */
     TimeOut: number = 0;
 
@@ -211,7 +222,6 @@ class Prompt<T extends TimerType | null = null> {
     Options: PromptOptions = {
         destroyOnTimeout: true,
         timeoutBehavior: TimeoutBehavior.RejectOnTimeout,
-
     };
 
     /**
@@ -364,6 +374,8 @@ class Prompt<T extends TimerType | null = null> {
      * and the prompt will auto-fullfill with a declined status.
      */
     Trigger() {
+        if (this._destroyed) return;
+
         // Only trigger if not already triggered
         if (this._triggered) return;
 
@@ -392,7 +404,7 @@ class Prompt<T extends TimerType | null = null> {
             let msgLabel: TextLabel | undefined = undefined;
             if (!msgInstance) {
                 // Add a text label to the content to represent the message
-                msgLabel = createDefaultMessageLabel(this.Message,this._UI.BG.BackgroundColor3) as TextLabel;
+                msgLabel = createDefaultMessageLabel(this.Message,this._UI.Content.BackgroundColor3) as TextLabel;
                 msgLabel.LayoutOrder = getLowestLayoutOrder(this._UI.Content) - 1;
                 msgLabel.Parent = this._UI.Content;
             } else msgLabel = msgInstance as TextLabel;
@@ -429,8 +441,8 @@ class Prompt<T extends TimerType | null = null> {
                 }
 
                 this._UI.BG.Visible = false;
-                this.OnFulfill.Fire(true,promptPayload);
                 this._triggered = false;
+                this.OnFulfill.Fire(true,promptPayload);
             })
         );
         
@@ -442,8 +454,8 @@ class Prompt<T extends TimerType | null = null> {
                 this.cleanConnections();
 
                 this._UI.BG.Visible = false;
-                this.OnFulfill.Fire(false);
                 this._triggered = false;
+                this.OnFulfill.Fire(false);
             })
         );
 
@@ -473,7 +485,7 @@ class Prompt<T extends TimerType | null = null> {
                 this._timer._timeUI.Parent = this._UI.BG;
                 this._timer.Set(this.TimeOut);
 
-                task.defer(this.startPromptTimer);
+                task.defer(() => this.startPromptTimer());
             }
         }
 
@@ -492,6 +504,8 @@ class Prompt<T extends TimerType | null = null> {
      * @param reason - The reason for cancelling the prompt.
      */
     Cancel(reason?: string) {
+        if (this._destroyed) return;
+
         this._triggered = false;
         this._cancelled = true;
         this.cleanConnections();
@@ -540,7 +554,10 @@ class Prompt<T extends TimerType | null = null> {
 
                 if (this.Options.timeoutBehavior === TimeoutBehavior.CancelOnTimeout)
                     this.OnCancel.Fire("Prompt has timed out.");
-                else this.OnFulfill.Fire(false);
+                else {
+                    this._triggered = false;
+                    this.OnFulfill.Fire(false);
+                }
 
                 if (this.Options.destroyOnTimeout) {
                     // Destroy the Prompt since it has timed out.
@@ -557,7 +574,7 @@ class Prompt<T extends TimerType | null = null> {
     private __warn(...params: unknown[]) { warn(`{Promptifier}: `,...params); }
     private __error(message?: unknown,level?: number): never {
         if (!level) level = 1;
-        if (typeof message === "string") error(`{Promptifier}: ${message}`,level + 1);
+        if (typeOf(message) === "string") error(`{Promptifier}: ${message}`,level + 1);
         else error(message,level);
     }
 
