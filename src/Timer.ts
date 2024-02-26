@@ -49,6 +49,12 @@ export enum TimerPosition {
  */
 class Timer<T extends TimerType> {
     readonly ClassName: "Timer" = "Timer";
+
+    /** The BorderSize of the element that will be the _timeUI Parent. */
+    ParentBorderSize: number = 0;
+
+// #region INTERNAL_MEMBERS
+
     /**
      * @internal
      * @readonly
@@ -57,16 +63,21 @@ class Timer<T extends TimerType> {
     readonly _type: TimerType;
 
     /**
+     * @internal
      * @defaultValue `0` if no start is passed to the constructor.
      * The current time in seconds of this timer.
     */
     _time: number;
 
-    /** This represents the actual Instances of the TimerType a TextLabel for digital and a Frame for a Bar. */
+    /**
+     * @internal
+     * This is the Instance that will represent the time for a {@link TimerType.Digit} it would be a TextLabel; {@link TimerType.Bar}.
+     */
     _timeUI: T extends TimerType.Digit ? TimerDigit : TimerBar;
 
-    /** The BorderSize of the element that will be the _timeUI Parent. */
-    parentBorderSize: number = 0;
+// #endregion
+
+// #region PRIVATE_MEMBERS
 
     /**
      * @private
@@ -79,6 +90,8 @@ class Timer<T extends TimerType> {
      * This is the active tween on the bar if the {@link Timer._type} is {@link TimerType.Bar}.
      */
     private _activeTween?: T extends TimerType.Bar ? Tween : undefined = undefined;
+
+// #endregion
 
     /**
      * @private
@@ -215,7 +228,7 @@ class Timer<T extends TimerType> {
             }
 
             this._timeUI.AnchorPoint = new Vector2(0,0);
-            this._timeUI.Position = new UDim2(0,0,-this._timeUI.Size.Y.Scale,-(this.parentBorderSize + 2));
+            this._timeUI.Position = new UDim2(0,0,-this._timeUI.Size.Y.Scale,-(this.ParentBorderSize + 2));
         } else if (pos === TimerPosition.BottomLeft) {
             // BottomLeft should only work with digital timers.
             if (this._type === TimerType.Bar) {
@@ -242,7 +255,7 @@ class Timer<T extends TimerType> {
             }
 
             this._timeUI.AnchorPoint = new Vector2(0,0);
-            this._timeUI.Position = new UDim2(0,0,1,this.parentBorderSize);
+            this._timeUI.Position = new UDim2(0,0,1,this.ParentBorderSize);
         }
     }
 
