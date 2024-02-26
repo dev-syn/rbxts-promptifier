@@ -140,7 +140,7 @@ class UIResolver {
      */
     Validate(): void {
         if (!IUIResolver({
-            BG: this.BG,
+            bg: this.BG,
             title: this.Title,
             content: this.Content,
             acceptBtn: this.AcceptBtn,
