@@ -8,7 +8,7 @@ type Button = TextButton | ImageButton;
  */
 interface UIStructure {
     /** A Frame representing the background of the Prompt. */
-    BG: Frame,
+    bg: Frame,
     /** A TextLabel which will act as the title/header for this Prompt. */
     title: TextLabel,
     /** A Frame | ScrollingFrame representing the container of the Prompt content. */
@@ -22,7 +22,7 @@ interface UIStructure {
 const TButton = t.union(t.instanceIsA("TextButton"),t.instanceIsA("ImageButton"));
 
 const IUIResolver = t.interface({
-    BG: t.instanceIsA("Frame"),
+    bg: t.instanceIsA("Frame"),
     title: t.instanceIsA("TextLabel"),
     content: t.union(t.instanceIsA("Frame"),t.instanceIsA("ScrollingFrame")),
     acceptBtn: TButton,
@@ -41,23 +41,23 @@ class UIResolver {
     BG!: Frame;
 
     /** A TextLabel which will act as the title/header for this Prompt. */
-    title!: TextLabel;
+    Title!: TextLabel;
 
     /** A Frame | ScrollingFrame representing the container of the Prompt content. */
-    content!: ScrollingFrame | Frame;
+    Content!: ScrollingFrame | Frame;
 
     /** The confirm, yes and accept button that will fulfill as accepted. */
-    acceptBtn!: TextButton | ImageButton;
+    AcceptBtn!: Button;
 
     /** The reject, no and decline button that will fulfill as declined. */
-    declineBtn!: TextButton | ImageButton;
+    DeclineBtn!: Button;
 
     /**
      * Sets the background of this Prompt.
      * @param bg - The background Frame of the Prompt
      * @returns - UIResolver for chaining
      */
-    setBG(bg: Frame): this {
+    SetBG(bg: Frame): this {
         this.BG = bg;
         return this;
     }
@@ -67,8 +67,8 @@ class UIResolver {
      * @param tl - The title TextLabel of the Prompt
      * @returns - UIResolver for chaining
      */
-    setTitle(tl: TextLabel): this {
-        this.title = tl;
+    SetTitle(tl: TextLabel): this {
+        this.Title = tl;
         return this;
     }
 
@@ -77,8 +77,8 @@ class UIResolver {
      * @param frame - A ScrollingFrame or Frame that will contain the Prompt content
      * @returns - UIResolver for chaining
      */
-    setContent(frame: ScrollingFrame | Frame): this {
-        this.content = frame;
+    SetContent(frame: ScrollingFrame | Frame): this {
+        this.Content = frame;
         return this;
     }
 
@@ -87,8 +87,8 @@ class UIResolver {
      * @param btn - The TextButton or ImageButton that will represent accepting the Prompt
      * @returns - UIResolver for chaining
      */
-    setAccept(btn: TextButton | ImageButton): this {
-        this.acceptBtn = btn;
+    SetAccept(btn: Button): this {
+        this.AcceptBtn = btn;
         return this;
     }
 
@@ -97,20 +97,20 @@ class UIResolver {
      * @param btn - The TextButton or ImageButton that will represent declining the Prompt
      * @returns - UIResolver for chaining
      */
-    setDecline(btn: TextButton | ImageButton): this {
-        this.declineBtn = btn;
+    SetDecline(btn: Button): this {
+        this.DeclineBtn = btn;
         return this;
     }
 
     /**
      * Reassigns the ZIndex of the Prompt UIResolver elements.
      */
-    assignZIndex(): void {
+    ReassignZIndex(): void {
         const bgZIndex: number = this.BG.ZIndex;
-        this.title.ZIndex = bgZIndex + 1;
-        this.content.ZIndex = bgZIndex + 1;
-        this.acceptBtn.ZIndex = bgZIndex + 1;
-        this.declineBtn.ZIndex = bgZIndex + 1;
+        this.Title.ZIndex = bgZIndex + 1;
+        this.Content.ZIndex = bgZIndex + 1;
+        this.AcceptBtn.ZIndex = bgZIndex + 1;
+        this.DeclineBtn.ZIndex = bgZIndex + 1;
     }
 
     /**
@@ -119,18 +119,18 @@ class UIResolver {
      * @param structure The UIResolver required structure
      * @returns - A boolean indicating whether the structure is valid or not.
      */
-    resolve(structure: UIStructure): boolean {
+    Resolve(structure: UIStructure): boolean {
         // If structure doesn't match ignore
         if (!IUIResolver(structure)) {
             warn("Failed to validate UI structure for UIResolver, you are missing a required UI element.");
             return false;
         }
 
-        this.BG = structure.BG;
-        this.title = structure.title;
-        this.content = structure.content;
-        this.acceptBtn = structure.acceptBtn;
-        this.declineBtn = structure.declineBtn;
+        this.BG = structure.bg;
+        this.Title = structure.title;
+        this.Content = structure.content;
+        this.AcceptBtn = structure.acceptBtn;
+        this.DeclineBtn = structure.declineBtn;
         return true;
     }
 
@@ -138,13 +138,13 @@ class UIResolver {
      * Validates the ui links to ensure they fill the requirements.
      * Errors if any of the elements are missing or invalid types.
      */
-    validate(): void {
+    Validate(): void {
         if (!IUIResolver({
             BG: this.BG,
-            title: this.title,
-            content: this.content,
-            acceptBtn: this.acceptBtn,
-            declineBtn: this.declineBtn
+            title: this.Title,
+            content: this.Content,
+            acceptBtn: this.AcceptBtn,
+            declineBtn: this.DeclineBtn
         })) error("Failed to validate UI structure for UIResolver, you are missing a required UI element.");
     }
 
@@ -152,14 +152,14 @@ class UIResolver {
      * Validates the structure of the UIResolver ensuring the elements are within their background.
      * @returns - `true` if the structure is valid, otherwise `false`
      */
-    validateStructure(): boolean {
+    ValidateStructure(): boolean {
         // Check that each prompt element is within the 'BG' element type.
         const bg: Frame = this.BG;
         return (
-            this.title.Parent === bg &&
-            this.content.Parent === bg &&
-            this.acceptBtn.Parent === bg &&
-            this.declineBtn.Parent === bg
+            this.Title.Parent === bg &&
+            this.Content.Parent === bg &&
+            this.AcceptBtn.Parent === bg &&
+            this.DeclineBtn.Parent === bg
         );
     }
 
